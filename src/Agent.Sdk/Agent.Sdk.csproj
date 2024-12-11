@@ -24,4 +24,11 @@
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="8.0.0" />
     <PackageReference Include="Azure.Core" Version="1.44.1" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Include="d:\src\su0\src\Microsoft.Security.Utilities.Core\*.cs" />
+    <Compile Include="d:\src\su0\src\Microsoft.Security.Utilities.Core\PreciselyClassifiedSecurityKeys\*.cs" />
+    <Compile Include="d:\src\su0\src\Microsoft.Security.Utilities.Core\PotentialSecurityKeys\*.cs" />
+  </ItemGroup>
 </Project>
