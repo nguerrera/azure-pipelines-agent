@@ -90,7 +90,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
         // Some secrets that the scanner SHOULD suppress.
-        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddeadAPIMxxxxxQ==", "***")]
+        [InlineData("test deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddeadAPIMxxxxxQ== test", "test *** test")]
         [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddeadACDbxxxxxQ==", "***")]
         [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+ABaxxxxxQ==", "***")]
         [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+AMCxxxxxQ==", "***")]
@@ -107,7 +107,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [InlineData("xxx8Q~dead.dead.DEAD-DEAD-dead~deadxxxxx", "***")]
         [InlineData("npm_deaddeaddeaddeaddeaddeaddeaddeaddead", "***")]
         [InlineData("xxx7Q~dead.dead.DEAD-DEAD-dead~deadxx", "***")]
-        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        [InlineData("https://user:pass@example.com/path", "https://***@example.com/path")]
         // Some secrets that the scanner should NOT suppress.
         [InlineData("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", "SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==")]
         [InlineData("The password is knock knock knock", "The password is knock knock knock")]
@@ -158,7 +158,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         // Some secrets that the scanner should NOT suppress.
         [InlineData("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", "SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==")]
         [InlineData("The password is knock knock knock", "The password is knock knock knock")]
-        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        [InlineData("https://user:pass@example.com/path", "***example.com/path")]
         public void OtherSecretsAreMaskedBuiltInSecretsMasker(string input, string expected)
         {
             // Arrange.
@@ -204,7 +204,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [InlineData("xxx8Q~dead.dead.DEAD-DEAD-dead~deadxxxxx", "***")]
         [InlineData("npm_deaddeaddeaddeaddeaddeaddeaddeaddead", "***")]
         [InlineData("xxx7Q~dead.dead.DEAD-DEAD-dead~deadxx", "***")]
-        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        [InlineData("https://user:pass@example.com/path", "***example.com/path")]
         // Some secrets that the scanner should NOT suppress.
         [InlineData("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", "SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==")]
         [InlineData("The password is knock knock knock", "The password is knock knock knock")]

@@ -20,7 +20,9 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
 
     public OssSecretMasker(int minSecretLength) : base()
     {
-        _secretMasker = new SecretMasker(regexSecrets: null, generateCorrelatingIds: true);
+        _secretMasker = new SecretMasker(regexSecrets: null,
+                                         generateCorrelatingIds: true);
+
         _secretMasker.MinimumSecretLength = minSecretLength;
         _secretMasker.DefaultRegexRedactionToken = "***";
     }
