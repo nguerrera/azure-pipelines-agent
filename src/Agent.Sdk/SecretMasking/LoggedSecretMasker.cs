@@ -14,7 +14,7 @@ namespace Agent.Sdk.SecretMasking
     /// </summary>
     public class LoggedSecretMasker : ILoggedSecretMasker
     {
-        private readonly ISecretMaskerVSO _secretMasker;
+        private ISecretMaskerVSO _secretMasker;
         private ITraceWriter _trace;
 
         private void Trace(string msg)
@@ -146,13 +146,10 @@ namespace Agent.Sdk.SecretMasking
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool _)
+        protected virtual void Dispose(bool disposing)
         {
-        }
-
-        string ILoggedSecretMasker.MaskSecrets(string input)
-        {
-            return this._secretMasker.MaskSecrets(input);
+            ((IDisposable)_secretMasker)?.Dispose();
+            this._secretMasker = null;
         }
     }
 }

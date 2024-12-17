@@ -5,14 +5,13 @@ using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncod
 using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 
 using System;
-using Microsoft.Security.Utilities;
 
 namespace Agent.Sdk.SecretMasking
 {
     /// <summary>
     /// Extended ISecretMasker interface that is adding support of logging secret masker methods
     /// </summary>
-    public interface ILoggedSecretMasker : ISecretMaskerVSO, ISecretMasker
+    public interface ILoggedSecretMasker : ISecretMaskerVSO, IDisposable
     {
         static int MinSecretLengthLimit { get; }
 
@@ -20,6 +19,5 @@ namespace Agent.Sdk.SecretMasking
         void AddValue(String value, string origin);
         void AddValueEncoder(ValueEncoder encoder, string origin);
         void SetTrace(ITraceWriter trace);
-        new string MaskSecrets(string input);
     }
 }
