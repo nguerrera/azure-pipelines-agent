@@ -194,107 +194,107 @@ namespace Microsoft.VisualStudio.Services.Agent
             switch (directory)
             {
                 case WellKnownDirectory.Bin:
-                    path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                    break;
+                path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                break;
 
                 case WellKnownDirectory.Externals:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        Constants.Path.ExternalsDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    Constants.Path.ExternalsDirectory);
+                break;
 
                 case WellKnownDirectory.LegacyPSHost:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Externals),
-                        Constants.Path.LegacyPSHostDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Externals),
+                    Constants.Path.LegacyPSHostDirectory);
+                break;
 
                 case WellKnownDirectory.LegacyPSHostLegacy:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Externals),
-                        Constants.Path.LegacyPSHostLegacyDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Externals),
+                    Constants.Path.LegacyPSHostLegacyDirectory);
+                break;
 
                 case WellKnownDirectory.Root:
-                    path = new DirectoryInfo(GetDirectory(WellKnownDirectory.Bin)).Parent.FullName;
-                    break;
+                path = new DirectoryInfo(GetDirectory(WellKnownDirectory.Bin)).Parent.FullName;
+                break;
 
                 case WellKnownDirectory.ServerOM:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Externals),
-                        Constants.Path.ServerOMDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Externals),
+                    Constants.Path.ServerOMDirectory);
+                break;
 
                 case WellKnownDirectory.ServerOMLegacy:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Externals),
-                        Constants.Path.ServerOMLegacyDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Externals),
+                    Constants.Path.ServerOMLegacyDirectory);
+                break;
 
                 case WellKnownDirectory.Tf:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Externals),
-                        Constants.Path.TfDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Externals),
+                    Constants.Path.TfDirectory);
+                break;
 
                 case WellKnownDirectory.TfLegacy:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Externals),
-                        Constants.Path.TfLegacyDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Externals),
+                    Constants.Path.TfLegacyDirectory);
+                break;
 
                 case WellKnownDirectory.Tee:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Externals),
-                        Constants.Path.TeeDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Externals),
+                    Constants.Path.TeeDirectory);
+                break;
 
                 case WellKnownDirectory.Temp:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Work),
-                        Constants.Path.TempDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Work),
+                    Constants.Path.TempDirectory);
+                break;
 
                 case WellKnownDirectory.Tasks:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Work),
-                        Constants.Path.TasksDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Work),
+                    Constants.Path.TasksDirectory);
+                break;
 
                 case WellKnownDirectory.TaskZips:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Work),
-                        Constants.Path.TaskZipsDirectory);
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Work),
+                    Constants.Path.TaskZipsDirectory);
+                break;
 
                 case WellKnownDirectory.Tools:
-                    path = AgentKnobs.AgentToolsDirectory.GetValue(this).AsString();
-                    if (string.IsNullOrEmpty(path))
-                    {
-                        path = Path.Combine(
-                            GetDirectory(WellKnownDirectory.Work),
-                            Constants.Path.ToolDirectory);
-                    }
-                    break;
-
-                case WellKnownDirectory.Update:
+                path = AgentKnobs.AgentToolsDirectory.GetValue(this).AsString();
+                if (string.IsNullOrEmpty(path))
+                {
                     path = Path.Combine(
                         GetDirectory(WellKnownDirectory.Work),
-                        Constants.Path.UpdateDirectory);
-                    break;
+                        Constants.Path.ToolDirectory);
+                }
+                break;
+
+                case WellKnownDirectory.Update:
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Work),
+                    Constants.Path.UpdateDirectory);
+                break;
 
                 case WellKnownDirectory.Work:
-                    var configurationStore = GetService<IConfigurationStore>();
-                    AgentSettings settings = configurationStore.GetSettings();
-                    ArgUtil.NotNull(settings, nameof(settings));
-                    ArgUtil.NotNullOrEmpty(settings.WorkFolder, nameof(settings.WorkFolder));
-                    path = Path.GetFullPath(Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        settings.WorkFolder));
-                    break;
+                var configurationStore = GetService<IConfigurationStore>();
+                AgentSettings settings = configurationStore.GetSettings();
+                ArgUtil.NotNull(settings, nameof(settings));
+                ArgUtil.NotNullOrEmpty(settings.WorkFolder, nameof(settings.WorkFolder));
+                path = Path.GetFullPath(Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    settings.WorkFolder));
+                break;
 
                 default:
-                    throw new NotSupportedException($"Unexpected well known directory: '{directory}'");
+                throw new NotSupportedException($"Unexpected well known directory: '{directory}'");
             }
 
             _trace.Info($"Well known directory '{directory}': '{path}'");
@@ -330,95 +330,95 @@ namespace Microsoft.VisualStudio.Services.Agent
             switch (configFile)
             {
                 case WellKnownConfigFile.Agent:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".agent");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".agent");
+                break;
 
                 case WellKnownConfigFile.Credentials:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".credentials");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".credentials");
+                break;
 
                 case WellKnownConfigFile.RSACredentials:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".credentials_rsaparams");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".credentials_rsaparams");
+                break;
 
                 case WellKnownConfigFile.Service:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".service");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".service");
+                break;
 
                 case WellKnownConfigFile.CredentialStore:
-                    if (PlatformUtil.RunningOnMacOS)
-                    {
-                        path = Path.Combine(
-                            GetDirectory(WellKnownDirectory.Root),
-                            ".credential_store.keychain");
-                    }
-                    else
-                    {
-                        path = Path.Combine(
-                            GetDirectory(WellKnownDirectory.Root),
-                            ".credential_store");
-                    }
-                    break;
+                if (PlatformUtil.RunningOnMacOS)
+                {
+                    path = Path.Combine(
+                        GetDirectory(WellKnownDirectory.Root),
+                        ".credential_store.keychain");
+                }
+                else
+                {
+                    path = Path.Combine(
+                        GetDirectory(WellKnownDirectory.Root),
+                        ".credential_store");
+                }
+                break;
 
                 case WellKnownConfigFile.Certificates:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".certificates");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".certificates");
+                break;
 
                 case WellKnownConfigFile.Proxy:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".proxy");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".proxy");
+                break;
 
                 case WellKnownConfigFile.ProxyCredentials:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".proxycredentials");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".proxycredentials");
+                break;
 
                 case WellKnownConfigFile.ProxyBypass:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".proxybypass");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".proxybypass");
+                break;
 
                 case WellKnownConfigFile.Autologon:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".autologon");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".autologon");
+                break;
 
                 case WellKnownConfigFile.Options:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".options");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".options");
+                break;
 
                 case WellKnownConfigFile.SetupInfo:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Root),
-                        ".setup_info");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Root),
+                    ".setup_info");
+                break;
 
                 // We need to remove this config file - once Node 6 handler is dropped
                 case WellKnownConfigFile.TaskExceptionList:
-                    path = Path.Combine(
-                        GetDirectory(WellKnownDirectory.Bin),
-                        "tasks-exception-list.json");
-                    break;
+                path = Path.Combine(
+                    GetDirectory(WellKnownDirectory.Bin),
+                    "tasks-exception-list.json");
+                break;
 
                 default:
-                    throw new NotSupportedException($"Unexpected well known config file: '{configFile}'");
+                throw new NotSupportedException($"Unexpected well known config file: '{configFile}'");
             }
 
             _trace.Info($"Well known config file '{configFile}': '{path}'");
@@ -719,17 +719,17 @@ namespace Microsoft.VisualStudio.Services.Agent
                 {
                     case EventLevel.Critical:
                     case EventLevel.Error:
-                        _vssTrace.Error(message);
-                        break;
+                    _vssTrace.Error(message);
+                    break;
                     case EventLevel.Warning:
-                        _vssTrace.Warning(message);
-                        break;
+                    _vssTrace.Warning(message);
+                    break;
                     case EventLevel.Informational:
-                        _vssTrace.Info(message);
-                        break;
+                    _vssTrace.Info(message);
+                    break;
                     default:
-                        _vssTrace.Verbose(message);
-                        break;
+                    _vssTrace.Verbose(message);
+                    break;
                 }
             }
             catch (Exception ex)
@@ -781,7 +781,6 @@ namespace Microsoft.VisualStudio.Services.Agent
             }
         }
     }
-
     public enum ShutdownReason
     {
         UserCancelled = 0,

@@ -76,8 +76,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         {
             var testSecretMasker = InitializeSecretMasker();
 
+            string expected = testSecretMasker is OssSecretMasker
+                ? "https://***@example.com"
+                : "***example.com";
+
             Assert.Equal(
-               "https://user:***@example.com",
+               expected,
                testSecretMasker.MaskSecrets("https://user:pass@example.com"));
         }
 
@@ -88,8 +92,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         {
             var testSecretMasker = InitializeSecretMasker();
 
+            string expected = testSecretMasker is OssSecretMasker
+                ? "https://***@example.com"
+                : "***example.com";
+
             Assert.Equal(
-               "https://user:***@example.com",
+               expected,
                testSecretMasker.MaskSecrets(@"https://user:pass4';.!&*()=,$-+~@example.com"));
         }
 
@@ -100,8 +108,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         {
             var testSecretMasker = InitializeSecretMasker();
 
+            string expected = testSecretMasker is OssSecretMasker
+                ? "https://***@example.com"
+                : "***example.com";
+
             Assert.Equal(
-               "https://username123:***@example.com",
+               expected,
                testSecretMasker.MaskSecrets(@"https://username123:password@example.com"));
         }
 
@@ -112,8 +124,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         {
             var testSecretMasker = InitializeSecretMasker();
 
+            string expected = testSecretMasker is OssSecretMasker
+                ? "https://***@example.com"
+                : "***example.com";
+
             Assert.Equal(
-               "https://username_loooooooooooooooooooooooooooooooooooooooooong:***@example.com",
+               expected,
                testSecretMasker.MaskSecrets(@"https://username_loooooooooooooooooooooooooooooooooooooooooong:password_looooooooooooooooooooooooooooooooooooooooooooooooong@example.com"));
         }
 
@@ -124,8 +140,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         {
             var testSecretMasker = InitializeSecretMasker();
 
+            string expected = testSecretMasker is OssSecretMasker
+                ? "https://***@example.com"
+                : "***example.com";
+
             Assert.Equal(
-               "https://username%10%A3%F6:***@example.com",
+               expected,
                testSecretMasker.MaskSecrets(@"https://username%10%A3%F6:password123@example.com"));
         }
 
@@ -136,8 +156,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         {
             var testSecretMasker = InitializeSecretMasker();
 
+            string expected = testSecretMasker is OssSecretMasker
+                ? "https://***@example.com"
+                : "***example.com";
+
             Assert.Equal(
-               "https://username%AZP2510%AZP25A3%AZP25F6:***@example.com",
+               expected,
                testSecretMasker.MaskSecrets(@"https://username%AZP2510%AZP25A3%AZP25F6:password123@example.com"));
         }
 

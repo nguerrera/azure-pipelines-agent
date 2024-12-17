@@ -5,6 +5,6 @@ namespace Microsoft.VisualStudio.Services.Agent
 {
     public static partial class AdditionalMaskingRegexes
     {
-        public static string UrlSecretPattern => "(ftps?|https?):\\/\\/(?:[^:@\\/]+):[^:@?\\/]+@";
+        public static string UrlSecretPattern => "(ftps?|https?):\\/\\/(?<refine>[^:@\\/]+:[^:@?\\/]+)@";
     }
 }
