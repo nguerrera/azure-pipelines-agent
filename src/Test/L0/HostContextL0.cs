@@ -71,12 +71,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [InlineData("ftp://example.com/path", "ftp://example.com/path")]
         [InlineData("ssh://example.com/path", "ssh://example.com/path")]
         [InlineData("https://example.com/@path", "https://example.com/@path")]
-        [InlineData("https://example.com/weird:thing@path", "https://example.com/weird:thing@path")]
         [InlineData("https://example.com:8080/path", "https://example.com:8080/path")]
+        [InlineData("https://example.com/weird:thing@path", "https://example.com/weird:thing@path")]
         public void UrlSecretsAreMasked(string input, string expected)
         {
             // Arrange.
-            using (var _hc = Setup())
+            using (var _hc = Setup(testName: nameof(UrlSecretsAreMasked)))
             {
                 // Act.
                 var result = _hc.SecretMasker.MaskSecrets(input);
@@ -107,15 +107,65 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [InlineData("xxx8Q~dead.dead.DEAD-DEAD-dead~deadxxxxx", "***")]
         [InlineData("npm_deaddeaddeaddeaddeaddeaddeaddeaddead", "***")]
         [InlineData("xxx7Q~dead.dead.DEAD-DEAD-dead~deadxx", "***")]
+        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
         // Some secrets that the scanner should NOT suppress.
         [InlineData("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", "SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==")]
         [InlineData("The password is knock knock knock", "The password is knock knock knock")]
-        public void OtherSecretsAreMasked(string input, string expected)
+        public void OtherSecretsAreMaskedOssSecretsMasker(string input, string expected)
         {
             // Arrange.
             try
             {
-                Environment.SetEnvironmentVariable("AZP_USE_CREDSCAN_REGEXES", "true");
+                Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", "true");
+                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
+
+                using (var _hc = Setup(testName: nameof(OtherSecretsAreMaskedOssSecretsMasker)))
+                {
+                    // Act.
+                    var result = _hc.SecretMasker.MaskSecrets(input);
+
+                    // Assert.
+                    Assert.Equal(expected, result);
+                }
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", "true");
+                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
+            }
+        }
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        // Some secrets that the scanner SHOULD suppress.
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddeadAPIMxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddeadACDbxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+ABaxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+AMCxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+AStxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeadAzFuxdeadQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddeaddeadxxAzSeDeadxx", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddeaddeadde+ACRDeadxx", "***")]
+        [InlineData("oy2mdeaddeaddeadeadqdeaddeadxxxezodeaddeadwxuq", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadxAIoTDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadx+ASbDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadx+AEhDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadx+ARmDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddAzCaDeadxx=", "***")]
+        [InlineData("xxx8Q~dead.dead.DEAD-DEAD-dead~deadxxxxx", "***")]
+        [InlineData("npm_deaddeaddeaddeaddeaddeaddeaddeaddead", "***")]
+        [InlineData("xxx7Q~dead.dead.DEAD-DEAD-dead~deadxx", "***")]
+        // Some secrets that the scanner should NOT suppress.
+        [InlineData("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", "SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==")]
+        [InlineData("The password is knock knock knock", "The password is knock knock knock")]
+        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        public void OtherSecretsAreMaskedBuiltInSecretsMasker(string input, string expected)
+        {
+            // Arrange.
+            try
+            {
+                Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", null);
+                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", "true");
 
                 using (var _hc = Setup())
                 {
@@ -128,7 +178,50 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             }
             finally
             {
-                Environment.SetEnvironmentVariable("AZP_USE_CREDSCAN_REGEXES", null);
+                Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", "true");
+                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
+            }
+        }
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        // Some secrets that the scanner SHOULD suppress.
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddeadAPIMxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddeadACDbxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+ABaxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+AMCxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead+AStxxxxxQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeadAzFuxdeadQ==", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddeaddeadxxAzSeDeadxx", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddeaddeadde+ACRDeadxx", "***")]
+        [InlineData("oy2mdeaddeaddeadeadqdeaddeadxxxezodeaddeadwxuq", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadxAIoTDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadx+ASbDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadx+AEhDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeadx+ARmDeadxx=", "***")]
+        [InlineData("deaddeaddeaddeaddeaddeaddeaddeaddAzCaDeadxx=", "***")]
+        [InlineData("xxx8Q~dead.dead.DEAD-DEAD-dead~deadxxxxx", "***")]
+        [InlineData("npm_deaddeaddeaddeaddeaddeaddeaddeaddead", "***")]
+        [InlineData("xxx7Q~dead.dead.DEAD-DEAD-dead~deadxx", "***")]
+        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        // Some secrets that the scanner should NOT suppress.
+        [InlineData("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", "SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==")]
+        [InlineData("The password is knock knock knock", "The password is knock knock knock")]
+        public void OtherSecretsAreMaskedSecretsMaskerVSO(string input, string expected)
+        {
+            // Arrange.
+
+            Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", null);
+            Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
+
+            using (var _hc = Setup())
+            {
+                // Act.
+                var result = _hc.SecretMasker.MaskSecrets(input);
+
+                // Assert.
+                Assert.Equal(expected, result);
             }
         }
 
