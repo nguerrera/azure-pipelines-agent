@@ -171,7 +171,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         public void SecretMaskerTests_CopyConstructor()
         {
             // Setup masker 1
-            using var secretMasker1 = new BuiltInSecretMasker();
+            var secretMasker1 = InitializeSecretMasker();
             secretMasker1.AddRegex("masker-1-regex-1_*");
             secretMasker1.AddRegex("masker-1-regex-2_*");
             secretMasker1.AddValue("masker-1-value-1_");
@@ -230,7 +230,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         public void SecretMaskerTests_Encoder()
         {
             // Add encoder before values.
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValueEncoder(x => x.Replace("-", "_"));
             secretMasker.AddValueEncoder(x => x.Replace("-", " "));
             secretMasker.AddValue("value-1");
@@ -255,7 +255,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_Encoder_JsonStringEscape()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValueEncoder(ValueEncoders.JsonStringEscape);
             secretMasker.AddValue("carriage-return\r_newline\n_tab\t_backslash\\_double-quote\"");
             Assert.Equal("***", secretMasker.MaskSecrets("carriage-return\r_newline\n_tab\t_backslash\\_double-quote\""));
@@ -267,7 +267,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_Encoder_BackslashEscape()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValueEncoder(ValueEncoders.BackslashEscape);
             secretMasker.AddValue(@"abc\\def\'\""ghi\t");
             Assert.Equal("***", secretMasker.MaskSecrets(@"abc\\def\'\""ghi\t"));
@@ -279,7 +279,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_Encoder_UriDataEscape()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValueEncoder(ValueEncoders.UriDataEscape);
             secretMasker.AddValue("hello world");
             Assert.Equal("***", secretMasker.MaskSecrets("hello world"));
@@ -391,7 +391,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_HandlesEmptyInput()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValue("abcd");
 
             var result = secretMasker.MaskSecrets(null);
@@ -406,7 +406,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_HandlesNoMasks()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             var expected = "abcdefg";
             var actual = secretMasker.MaskSecrets(expected);
             Assert.Equal(expected, actual);
@@ -417,7 +417,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_ReplacesValue()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValue("def");
 
             var input = "abcdefg";
@@ -431,7 +431,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_ReplacesMultipleInstances()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValue("def");
 
             var input = "abcdefgdef";
@@ -445,7 +445,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_ReplacesMultipleAdjacentInstances()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValue("abc");
 
             var input = "abcabcdef";
@@ -459,7 +459,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_ReplacesMultipleSecrets()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValue("bcd");
             secretMasker.AddValue("fgh");
 
@@ -474,7 +474,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_ReplacesOverlappingSecrets()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValue("def");
             secretMasker.AddValue("bcd");
 
@@ -492,7 +492,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_ReplacesAdjacentSecrets()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
             secretMasker.AddValue("efg");
             secretMasker.AddValue("bcd");
 
@@ -509,7 +509,8 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_MinLengthSetThroughConstructor()
         {
-            using var secretMasker = new BuiltInSecretMasker() { MinSecretLength = 9 };
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = 9;
 
             secretMasker.AddValue("efg");
             secretMasker.AddValue("bcd");
@@ -527,7 +528,8 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_MinLengthSetThroughProperty()
         {
-            using var secretMasker = new BuiltInSecretMasker { MinSecretLength = 9 };
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = 9;
 
             secretMasker.AddValue("efg");
             secretMasker.AddValue("bcd");
@@ -545,7 +547,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_MinLengthSetThroughPropertySetTwice()
         {
-            using var secretMasker = new BuiltInSecretMasker();
+            var secretMasker = InitializeSecretMasker();
 
             var minSecretLenFirst = 9;
             secretMasker.MinSecretLength = minSecretLenFirst;
@@ -561,7 +563,9 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_NegativeMinSecretLengthSet()
         {
-            using var secretMasker = new BuiltInSecretMasker() { MinSecretLength = -3 };
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = -3;
+
             secretMasker.AddValue("efg");
             secretMasker.AddValue("bcd");
 
@@ -576,7 +580,9 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_RemoveShortSecrets()
         {
-            using var secretMasker = new BuiltInSecretMasker() { MinSecretLength = 3 };
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = 3;
+
             secretMasker.AddValue("efg");
             secretMasker.AddValue("bcd");
 
@@ -598,7 +604,9 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_RemoveShortSecretsBoundaryValues()
         {
-            using var secretMasker = new BuiltInSecretMasker(0);
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = 0;
+
             secretMasker.AddValue("bc");
             secretMasker.AddValue("defg");
             secretMasker.AddValue("h12");
@@ -621,7 +629,9 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_RemoveShortRegexes()
         {
-            using var secretMasker = new BuiltInSecretMasker(0);
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = 0;
+
             secretMasker.AddRegex("bc");
             secretMasker.AddRegex("defg");
             secretMasker.AddRegex("h12");
@@ -640,7 +650,9 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_RemoveEncodedSecrets()
         {
-            using var secretMasker = new BuiltInSecretMasker(0);
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = 0;
+
             secretMasker.AddValue("1");
             secretMasker.AddValue("2");
             secretMasker.AddValue("3");
@@ -662,7 +674,9 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void SecretMaskerTests_NotAddShortEncodedSecrets()
         {
-            using var secretMasker = new BuiltInSecretMasker() { MinSecretLength = 3 };
+            var secretMasker = InitializeSecretMasker();
+            secretMasker.MinSecretLength = 3;
+
             secretMasker.AddValueEncoder(new ValueEncoder(x => x.Replace("123", "ab")));
             secretMasker.AddValue("123");
             secretMasker.AddValue("345");

@@ -10,9 +10,28 @@ using Microsoft.Security.Utilities;
 
 namespace Agent.Sdk.SecretMasking;
 
+public class WrappedValueEncoder
+{
+    private readonly ValueEncoder _encoder;
+
+    public WrappedValueEncoder(ValueEncoder encoder)
+    {
+        _encoder = encoder;
+    }
+
+    public LiteralEncoder Encoder() => x => _encoder(x);
+
+    public string Encode(string literal)
+    {
+        return _encoder(literal);
+    }
+}
+
 public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
 {
     private SecretMasker _secretMasker;
+
+    private delegate string WrappedValueEncoder(ValueEncoder encoder);
 
     public OssSecretMasker() : this(0)
     {
@@ -62,7 +81,7 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
     /// </summary>
     public void AddValueEncoder(ValueEncoder encoder)
     {
-        //_secretMasker.AddLiteralEncoder(new LiteralEncoder(encoder.);
+       _secretMasker.AddLiteralEncoder(x => encoder(x));
     }
 
     public ISecretMaskerVSO Clone() => new OssSecretMasker(this);
