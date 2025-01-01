@@ -9,7 +9,8 @@ using System;
 namespace Agent.Sdk.SecretMasking
 {
     /// <summary>
-    /// Extended ISecretMasker interface that is adding support of logging secret masker methods
+    /// Extended ISecretMasker interface that adds support for logging the origin of
+    /// regexes, encoders and literal secret values.
     /// </summary>
     public interface ILoggedSecretMasker : ISecretMaskerVSO, IDisposable
     {

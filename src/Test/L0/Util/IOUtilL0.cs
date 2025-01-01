@@ -982,6 +982,8 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Util
         [Trait("SkipOn", "windows")]
         public void GetRelativePathNonWindows()
         {
+            if (TestUtil.IsWindows()) { return; }
+
             using (TestHostContext hc = new TestHostContext(this))
             {
                 Tracing trace = hc.GetTrace();
@@ -1084,6 +1086,8 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Util
         [Trait("SkipOn", "windows")]
         public void ResolvePathNonWindows()
         {
+            if (TestUtil.IsWindows()) { return; }
+
             using (TestHostContext hc = new TestHostContext(this))
             {
                 Tracing trace = hc.GetTrace();

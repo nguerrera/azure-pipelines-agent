@@ -794,7 +794,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Worker
                 var expectedEvent = new Dictionary<string, object>()
                 {
                     { "JobId", null },
-                    { "ProxyAddress-${http_proxy}", "http://admin:***@localhost.com"},
+                    { "ProxyAddress-${http_proxy}", "***localhost.com"},
                 };
 
                 var actualEvents = new List<CustomerIntelligenceEvent[]>();
