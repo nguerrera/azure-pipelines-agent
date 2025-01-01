@@ -11,15 +11,19 @@ using System.Text.RegularExpressions;
 
 namespace Agent.Sdk.SecretMasking;
 
+/// <summary>
+/// The built-in secret masker is a close port of the the masker defined in
+/// TFS/VSO. This copy was created to make it possible to extend the
+/// implementation in useful ways. Currently, the only meaningful
+/// improvement is to optimize regex construction flags. This class (and the
+/// original VSO secret masker) should eventually be replaced by
+/// Microsoft's open source version (which is itself also based on the VSO
+/// implementation).
+/// </summary>
 public sealed class BuiltInSecretMasker : ISecretMaskerVSO, IDisposable
 {
-    public BuiltInSecretMasker()
+    public BuiltInSecretMasker() : this(0)
     {
-        MinSecretLength = 0;
-        m_originalValueSecrets = new HashSet<ValueSecret>();
-        m_regexSecrets = new HashSet<RegexSecret>();
-        m_valueEncoders = new HashSet<ValueEncoder>();
-        m_valueSecrets = new HashSet<ValueSecret>();
     }
 
     public BuiltInSecretMasker(int minSecretLength)

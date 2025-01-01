@@ -683,7 +683,7 @@ namespace Agent.Sdk.Knob
 
         public static readonly Knob EnableNewSecretMasker = new Knob(
             nameof(EnableNewSecretMasker),
-            "If true, the agent will use the build-in SecretMasker with additional filters & performance enhancements over the VSO version",
+            "If true, the agent will use the built-in SecretMasker with additional filters & performance enhancements over the VSO version",
             new EnvironmentKnobSource("AZP_ENABLE_NEW_SECRET_MASKER"),
             new BuiltInDefaultKnobSource("false"));
 

@@ -10,23 +10,6 @@ using Microsoft.Security.Utilities;
 
 namespace Agent.Sdk.SecretMasking;
 
-public class WrappedValueEncoder
-{
-    private readonly ValueEncoder _encoder;
-
-    public WrappedValueEncoder(ValueEncoder encoder)
-    {
-        _encoder = encoder;
-    }
-
-    public LiteralEncoder Encoder() => x => _encoder(x);
-
-    public string Encode(string literal)
-    {
-        return _encoder(literal);
-    }
-}
-
 public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
 {
     private SecretMasker _secretMasker;
@@ -39,7 +22,7 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
 
     public OssSecretMasker(int minSecretLength) : base()
     {
-        _secretMasker = new SecretMasker(regexSecrets: null,
+        _secretMasker = new SecretMasker(regexSecrets: WellKnownRegexPatterns.HighConfidenceSecurityModelsIterator(),
                                          generateCorrelatingIds: true);
 
         _secretMasker.MinimumSecretLength = minSecretLength;

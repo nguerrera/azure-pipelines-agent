@@ -168,7 +168,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
                     Guid timeLineRecordId = Guid.NewGuid();
                     int totalBytes = PagesToWrite * PagingLogger.PageSize;
                     int logDataSize = System.Text.Encoding.UTF8.GetByteCount(LogData);
-                    
+
                     //Act
                     int bytesSent = 0;
                     int expectedLines = 0;
@@ -214,7 +214,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
                     Guid timeLineRecordId = Guid.NewGuid();
                     int totalBytes = PagesToWrite * PagingLogger.PageSize;
                     int logDataSize = System.Text.Encoding.UTF8.GetByteCount(LogDataWithGroup);
-               
+
                     //Act
                     int bytesSent = 0;
                     int expectedLines = 0;
@@ -260,7 +260,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
                     Guid timeLineRecordId = Guid.NewGuid();
                     int totalBytes = PagesToWrite * PagingLogger.PageSize;
                     int logDataSize = System.Text.Encoding.UTF8.GetByteCount(LogDataWithoutOpenGroup);
-               
+
                     //Act
                     int bytesSent = 0;
                     int expectedLines = 0;
@@ -306,7 +306,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
                     Guid timeLineRecordId = Guid.NewGuid();
                     int totalBytes = PagesToWrite * PagingLogger.PageSize;
                     int logDataSize = System.Text.Encoding.UTF8.GetByteCount(LogDataWithoutCloseGroup);
-               
+
                     //Act
                     int bytesSent = 0;
                     int expectedLines = 0;
@@ -332,7 +332,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
                 CleanLogFolder();
             }
         }
-    
+
         [Fact]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
@@ -343,7 +343,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
             try
             {
                 //Arrange
-                using (var hc = new TestHostContext(this))
+                using (var hc = new TestHostContext(this, testName: nameof(CalculateLineNumbersWithUpperCaseGroupTag)))
                 using (var pagingLogger = new PagingLogger())
                 {
                     hc.SetSingleton<IJobServerQueue>(_jobServerQueue.Object);
@@ -352,7 +352,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
                     Guid timeLineRecordId = Guid.NewGuid();
                     int totalBytes = PagesToWrite * PagingLogger.PageSize;
                     int logDataSize = System.Text.Encoding.UTF8.GetByteCount(LogDataUpperCaseGroup);
-               
+
                     //Act
                     int bytesSent = 0;
                     int expectedLines = 0;

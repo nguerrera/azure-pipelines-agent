@@ -25,7 +25,6 @@ using Microsoft.TeamFoundation.DistributedTask.Logging;
 using BuiltInSecretMasker = Agent.Sdk.SecretMasking.BuiltInSecretMasker;
 using SecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
 using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
-using Microsoft.Security.Utilities;
 
 namespace Microsoft.VisualStudio.Services.Agent
 {
@@ -121,10 +120,19 @@ namespace Microsoft.VisualStudio.Services.Agent
             _loadContext = AssemblyLoadContext.GetLoadContext(typeof(HostContext).GetTypeInfo().Assembly);
             _loadContext.Unloading += LoadContext_Unloading;
 
+            // Having created one of three secret maskers, we now need to supplement the core masking capability with
+            // additional checks. The original VSO secret masker has no additional redactions specific to credentials.
+
+            if (!useOssSecretMasker)
+            {
+                this.AddAdditionalMaskingRegexes();
+            }
+
             this.SecretMasker.AddValueEncoder(ValueEncoders.UriDataEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
             this.SecretMasker.AddValueEncoder(ValueEncoders.BackslashEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
             this.SecretMasker.AddValueEncoder(ValueEncoders.JsonStringEscape, $"HostContext_{WellKnownSecretAliases.JsonStringEscape}");
             this.SecretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern, $"HostContext_{WellKnownSecretAliases.UrlSecretPattern}");
+
 
             // Create the trace manager.
             if (string.IsNullOrEmpty(logFile))
@@ -777,7 +785,7 @@ namespace Microsoft.VisualStudio.Services.Agent
             ArgUtil.NotNull(context, nameof(context));
             foreach (var pattern in AdditionalMaskingRegexes.CredScanPatterns)
             {
-                context.SecretMasker.AddRegex(pattern, $"HostContext_{WellKnownSecretAliases.CredScanPatterns}");
+                context.SecretMasker.AddRegex(pattern, $"HostContext");
             }
         }
     }

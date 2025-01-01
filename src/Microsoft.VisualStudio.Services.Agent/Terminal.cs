@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Agent.Sdk.Knob;
 using Agent.Sdk.Util;
@@ -56,8 +57,16 @@ namespace Microsoft.VisualStudio.Services.Agent
                 Trace.Error(ex);
             }
 
-            Console.OutputEncoding = terminalEncoding;
-            Console.InputEncoding = terminalEncoding;
+            try
+            {
+                Console.OutputEncoding = terminalEncoding;
+                Console.InputEncoding = terminalEncoding;
+            }
+            catch (IOException ex)
+            {
+                Trace.Error("Failed to set console encoding:");
+                Trace.Error(ex);
+            }
         }
 
         private void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
