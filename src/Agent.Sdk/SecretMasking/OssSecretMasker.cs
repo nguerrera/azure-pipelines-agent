@@ -95,10 +95,12 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
 
             foreach (var secret in _secretMasker.EncodedSecretLiterals)
             {
-                if (secret.m_value.Length < MinSecretLength)
+
+                if (secret.Value.Length < MinSecretLength)
                 {
                     filteredValueSecrets.Add(secret);
                 }
+                
             }
 
             foreach (var secret in _secretMasker.RegexPatterns)
