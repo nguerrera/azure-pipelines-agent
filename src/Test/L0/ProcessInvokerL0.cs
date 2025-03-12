@@ -265,8 +265,6 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("SkipOn", "windows")]
         public async Task OomScoreAdjIsWriten_Default()
         {
-            if (TestUtil.IsWindows()) { return; }
-
             // We are on a system that supports oom_score_adj in procfs as assumed by ProcessInvoker
             string testProcPath = $"/proc/{Process.GetCurrentProcess().Id}/oom_score_adj";
             if (File.Exists(testProcPath))
@@ -308,8 +306,6 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("SkipOn", "windows")]
         public async Task OomScoreAdjIsWriten_FromEnv()
         {
-            if (TestUtil.IsWindows()) { return; }
-
             // We are on a system that supports oom_score_adj in procfs as assumed by ProcessInvoker
             string testProcPath = $"/proc/{Process.GetCurrentProcess().Id}/oom_score_adj";
             if (File.Exists(testProcPath))
@@ -353,8 +349,6 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("SkipOn", "windows")]
         public async Task OomScoreAdjIsInherited()
         {
-            if (TestUtil.IsWindows()) { return; }
-
             // We are on a system that supports oom_score_adj in procfs as assumed by ProcessInvoker
             string testProcPath = $"/proc/{Process.GetCurrentProcess().Id}/oom_score_adj";
             if (File.Exists(testProcPath))
