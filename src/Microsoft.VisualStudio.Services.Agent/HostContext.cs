@@ -22,7 +22,6 @@ using Agent.Sdk.SecretMasking;
 using Pipelines = Microsoft.TeamFoundation.DistributedTask.Pipelines;
 using Agent.Sdk.Util;
 using Microsoft.TeamFoundation.DistributedTask.Logging;
-using BuiltInSecretMasker = Agent.Sdk.SecretMasking.BuiltInSecretMasker;
 using SecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
 using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 
@@ -97,16 +96,16 @@ namespace Microsoft.VisualStudio.Services.Agent
             // In the presence of the new 'EnableOssSecretMasker' switch, we opt into the 
             // package-delivered secret masker from Microsoft.Security.Utilities. Otherwise,
             // we select the interim built-in version or the legacy VSO version, after
-            // consultiung the 'EnableNewSecretMasker' switch.
+            // consulting the 'EnableNewSecretMasker' switch.
             var useOssSecretMasker = AgentKnobs.EnableOssSecretMasker.GetValue(this).AsBoolean();
             var useBuiltInSecretMasker = AgentKnobs.EnableNewSecretMasker.GetValue(this).AsBoolean();
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
+#pragma warning disable CA2000 // Dispose objects before losing scope. False positive: _loggedSecretMasker takes ownership and will handle disposal.
             ISecretMaskerVSO _secretMaskerVSO = useOssSecretMasker ? new OssSecretMasker()
                 : useBuiltInSecretMasker
                     ? new BuiltInSecretMasker()
                     : new SecretMaskerVSO();
-#pragma warning restore CA2000 // Dispose objects before losing scope
+#pragma warning restore CA2000
 
             _loggedSecretMasker = new LoggedSecretMasker(_secretMaskerVSO);
 
@@ -123,7 +122,7 @@ namespace Microsoft.VisualStudio.Services.Agent
             // Having created one of three secret maskers, we now need to supplement the core masking capability with
             // additional checks. The original VSO secret masker has no additional redactions specific to credentials.
 
-            if (!useOssSecretMasker)
+            if (!useOssSecretMasker) // OSS secret masker already has these patterns.
             {
                 this.AddAdditionalMaskingRegexes();
             }
@@ -784,7 +783,7 @@ namespace Microsoft.VisualStudio.Services.Agent
             ArgUtil.NotNull(context, nameof(context));
             foreach (var pattern in AdditionalMaskingRegexes.CredScanPatterns)
             {
-                context.SecretMasker.AddRegex(pattern, $"HostContext");
+                context.SecretMasker.AddRegex(pattern, $"HostContext_{WellKnownSecretAliases.CredScanPatterns}");
             }
         }
     }

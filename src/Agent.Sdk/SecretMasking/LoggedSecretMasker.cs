@@ -4,8 +4,6 @@
 using System;
 using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoder;
 using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
-using System.Collections.Generic;
-using Microsoft.Security.Utilities;
 
 namespace Agent.Sdk.SecretMasking
 {
@@ -24,6 +22,7 @@ namespace Agent.Sdk.SecretMasking
     {
         private ISecretMaskerVSO _secretMasker;
         private ITraceWriter _trace;
+
 
         private void Trace(string msg)
         {
@@ -85,7 +84,7 @@ namespace Agent.Sdk.SecretMasking
         }
 
         // We don't allow to skip secrets longer than 5 characters.
-        // Note: the secret that will be ignored is of length n - 1.
+        // Note: the secret that will be ignored is of length n-1.
         public static int MinSecretLengthLimit => 6;
 
         public int MinSecretLength
@@ -136,12 +135,17 @@ namespace Agent.Sdk.SecretMasking
             AddValueEncoder(encoder);
         }
 
+        public LoggedSecretMasker Clone()
+        {
+            return new LoggedSecretMasker(this._secretMasker.Clone());
+        }
+
         public string MaskSecrets(string input)
         {
             return this._secretMasker.MaskSecrets(input);
         }
 
-        public ISecretMaskerVSO Clone() => new LoggedSecretMasker(this._secretMasker.Clone());
+        ISecretMaskerVSO ISecretMaskerVSO.Clone() => this.Clone();
 
         public void Dispose()
         {
@@ -151,8 +155,14 @@ namespace Agent.Sdk.SecretMasking
 
         protected virtual void Dispose(bool disposing)
         {
-            ((IDisposable)_secretMasker)?.Dispose();
-            this._secretMasker = null;
+            if (disposing)
+            {
+                if (_secretMasker is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+                _secretMasker = null;
+            }
         }
     }
 }

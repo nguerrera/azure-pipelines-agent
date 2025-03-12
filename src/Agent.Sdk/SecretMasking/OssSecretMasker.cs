@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoder;
 using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
-using System.Text.RegularExpressions;
 
 using Microsoft.Security.Utilities;
 
@@ -14,15 +13,13 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
 {
     private SecretMasker _secretMasker;
 
-    private delegate string WrappedValueEncoder(ValueEncoder encoder);
-
     public OssSecretMasker() : this(0)
     {
     }
 
     public OssSecretMasker(int minSecretLength) : base()
     {
-        _secretMasker = new SecretMasker(regexSecrets: WellKnownRegexPatterns.HighConfidenceSecurityModelsIterator(),
+        _secretMasker = new SecretMasker(regexSecrets: WellKnownRegexPatterns.PreciselyClassifiedSecurityKeys,
                                          generateCorrelatingIds: true);
 
         _secretMasker.MinimumSecretLength = minSecretLength;
@@ -46,15 +43,15 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
     /// <summary>
     /// This implementation assumes no more than one thread is adding regexes, values, or encoders at any given time.
     /// </summary>
-    public void AddRegex(String pattern)
+    public void AddRegex(string pattern)
     {
-        _secretMasker.AddRegex(new RegexPattern(id: string.Empty, name: string.Empty, 0, pattern));
+        _secretMasker.AddRegex(new RegexPattern(id: string.Empty, name: string.Empty, DetectionMetadata.None, pattern));
     }
 
     /// <summary>
     /// This implementation assumes no more than one thread is adding regexes, values, or encoders at any given time.
     /// </summary>
-    public void AddValue(String test)
+    public void AddValue(string test)
     {
         _secretMasker.AddValue(test);
     }
@@ -67,7 +64,7 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
        _secretMasker.AddLiteralEncoder(x => encoder(x));
     }
 
-    public ISecretMaskerVSO Clone() => new OssSecretMasker(this);
+    public OssSecretMasker Clone() => new OssSecretMasker(this);
 
     public void Dispose()
     {
@@ -75,7 +72,7 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
         _secretMasker = null;
     }
 
-    public String MaskSecrets(String input)
+    public String MaskSecrets(string input)
     {
         return _secretMasker.MaskSecrets(input);
     }
@@ -95,12 +92,10 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
 
             foreach (var secret in _secretMasker.EncodedSecretLiterals)
             {
-
                 if (secret.Value.Length < MinSecretLength)
                 {
                     filteredValueSecrets.Add(secret);
                 }
-                
             }
 
             foreach (var secret in _secretMasker.RegexPatterns)
@@ -147,13 +142,5 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
         }
     }
 
-    public void AddRegex(string pattern, RegexOptions _)
-    {
-        AddRegex(pattern);
-    }
-
-    ISecretMaskerVSO ISecretMaskerVSO.Clone()
-    {
-        return this.Clone();
-    }
+    ISecretMaskerVSO ISecretMaskerVSO.Clone() => this.Clone();
 }
