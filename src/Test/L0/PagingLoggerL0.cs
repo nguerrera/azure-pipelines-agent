@@ -343,7 +343,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests.Listener
             try
             {
                 //Arrange
-                using (var hc = new TestHostContext(this, testName: nameof(CalculateLineNumbersWithUpperCaseGroupTag)))
+                using (var hc = new TestHostContext(this))
                 using (var pagingLogger = new PagingLogger())
                 {
                     hc.SetSingleton<IJobServerQueue>(_jobServerQueue.Object);

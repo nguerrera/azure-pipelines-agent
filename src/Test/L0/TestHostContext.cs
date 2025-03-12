@@ -17,7 +17,6 @@ using Agent.Sdk;
 using Agent.Sdk.Knob;
 using Agent.Sdk.SecretMasking;
 using Pipelines = Microsoft.TeamFoundation.DistributedTask.Pipelines;
-using SecretMasker = Agent.Sdk.SecretMasking.BuiltInSecretMasker;
 
 namespace Microsoft.VisualStudio.Services.Agent.Tests
 {
@@ -72,7 +71,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 
             var traceListener = new HostTraceListener(TraceFileName);
             traceListener.DisableConsoleReporting = true;
-            _secretMasker = new LoggedSecretMasker(new SecretMasker());
+            _secretMasker = new LoggedSecretMasker(new BuiltInSecretMasker());
             _secretMasker.AddValueEncoder(ValueEncoders.JsonStringEscape);
             _secretMasker.AddValueEncoder(ValueEncoders.UriDataEscape);
             _secretMasker.AddValueEncoder(ValueEncoders.BackslashEscape);
