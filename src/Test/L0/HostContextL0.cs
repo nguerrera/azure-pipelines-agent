@@ -325,7 +325,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         {
             try
             {
-                var newPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "logs", Constants.Path.DiagDirectory);
+                var newPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "logs");
                 Environment.SetEnvironmentVariable("AGENT_DIAGLOGPATH", newPath);
 
                 using (var _hc = new HostContext(HostType.Agent))
@@ -334,7 +334,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
                     var diagFolder = _hc.GetDiagDirectory();
 
                     // Assert
-                    Assert.Equal(newPath, diagFolder);
+                    Assert.Equal(Path.Combine(newPath, Constants.Path.DiagDirectory), diagFolder);
                     Directory.Exists(diagFolder);
                 }
             }
