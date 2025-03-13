@@ -57,23 +57,23 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
         // some URLs with secrets to mask
-        [InlineData("https://user:pass@example.com/path", "https://***@example.com/path")]
-        [InlineData("http://user:pass@example.com/path", "http://***@example.com/path")]
-        [InlineData("ftp://user:pass@example.com/path", "ftp://***@example.com/path")]
-        [InlineData("https://user:pass@example.com/weird:thing@path", "https://***@example.com/weird:thing@path")]
-        [InlineData("https://user:pass@example.com:8080/path", "https://***@example.com:8080/path")]
-        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://***@example.com:8080/path\nhttps://***@example.com:8080/path")]
-        [InlineData("https://user@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user@example.com:8080/path\nhttps://***@example.com:8080/path")]
-        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2@example.com:8080/path", "https://***@example.com:8080/path\nhttps://user2@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        [InlineData("http://user:pass@example.com/path", "http://user:***@example.com/path")]
+        [InlineData("ftp://user:pass@example.com/path", "ftp://user:***@example.com/path")]
+        [InlineData("https://user:pass@example.com/weird:thing@path", "https://user:***@example.com/weird:thing@path")]
+        [InlineData("https://user:pass@example.com:8080/path", "https://user:***@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2:***@example.com:8080/path")]
+        [InlineData("https://user@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user@example.com:8080/path\nhttps://user2:***@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2@example.com:8080/path")]
         // some URLs without secrets to mask
         [InlineData("https://example.com/path", "https://example.com/path")]
         [InlineData("http://example.com/path", "http://example.com/path")]
         [InlineData("ftp://example.com/path", "ftp://example.com/path")]
         [InlineData("ssh://example.com/path", "ssh://example.com/path")]
         [InlineData("https://example.com/@path", "https://example.com/@path")]
-        [InlineData("https://example.com:8080/path", "https://example.com:8080/path")]
         [InlineData("https://example.com/weird:thing@path", "https://example.com/weird:thing@path")]
-        public void UrlCredentialsAreMaskedOssSecretMasker(string input, string expected)
+        [InlineData("https://example.com:8080/path", "https://example.com:8080/path")]
+        public void UrlSecretsAreMaskedOssSecretMasker(string input, string expected)
         {
             // Arrange.
 
@@ -82,7 +82,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
                 Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", "true");
                 Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
 
-                using (var _hc = Setup(testName: nameof(UrlCredentialsAreMaskedOssSecretMasker)))
+                using (var _hc = Setup())
                 {
                     // Act.
                     var result = _hc.SecretMasker.MaskSecrets(input);
@@ -102,23 +102,23 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
         // some URLs with secrets to mask
-        [InlineData("https://user:pass@example.com/path", "***example.com/path")]
-        [InlineData("http://user:pass@example.com/path", "***example.com/path")]
-        [InlineData("ftp://user:pass@example.com/path", "***example.com/path")]
-        [InlineData("https://user:pass@example.com/weird:thing@path", "***example.com/weird:thing@path")]
-        [InlineData("https://user:pass@example.com:8080/path", "***example.com:8080/path")]
-        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "***example.com:8080/path\n***example.com:8080/path")]
-        [InlineData("https://user@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user@example.com:8080/path\n***example.com:8080/path")]
-        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2@example.com:8080/path", "***example.com:8080/path\nhttps://user2@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        [InlineData("http://user:pass@example.com/path", "http://user:***@example.com/path")]
+        [InlineData("ftp://user:pass@example.com/path", "ftp://user:***@example.com/path")]
+        [InlineData("https://user:pass@example.com/weird:thing@path", "https://user:***@example.com/weird:thing@path")]
+        [InlineData("https://user:pass@example.com:8080/path", "https://user:***@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2:***@example.com:8080/path")]
+        [InlineData("https://user@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user@example.com:8080/path\nhttps://user2:***@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2@example.com:8080/path")]
         // some URLs without secrets to mask
         [InlineData("https://example.com/path", "https://example.com/path")]
         [InlineData("http://example.com/path", "http://example.com/path")]
         [InlineData("ftp://example.com/path", "ftp://example.com/path")]
         [InlineData("ssh://example.com/path", "ssh://example.com/path")]
         [InlineData("https://example.com/@path", "https://example.com/@path")]
-        [InlineData("https://example.com:8080/path", "https://example.com:8080/path")]
         [InlineData("https://example.com/weird:thing@path", "https://example.com/weird:thing@path")]
-        public void UrlCredentialsAreMaskedBuiltInSecretMasker(string input, string expected)
+        [InlineData("https://example.com:8080/path", "https://example.com:8080/path")]
+        public void UrlSecretsAreMaskedBuiltInSecretMasker(string input, string expected)
         {
             // Arrange.
 
@@ -127,7 +127,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
                 Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", null);
                 Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", "true");
 
-                using (var _hc = Setup(testName: nameof(UrlCredentialsAreMaskedBuiltInSecretMasker)))
+                using (var _hc = Setup())
                 {
                     // Act.
                     var result = _hc.SecretMasker.MaskSecrets(input);
@@ -147,30 +147,30 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
         // some URLs with secrets to mask
-        [InlineData("https://user:pass@example.com/path", "***example.com/path")]
-        [InlineData("http://user:pass@example.com/path", "***example.com/path")]
-        [InlineData("ftp://user:pass@example.com/path", "***example.com/path")]
-        [InlineData("https://user:pass@example.com/weird:thing@path", "***example.com/weird:thing@path")]
-        [InlineData("https://user:pass@example.com:8080/path", "***example.com:8080/path")]
-        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "***example.com:8080/path\n***example.com:8080/path")]
-        [InlineData("https://user@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user@example.com:8080/path\n***example.com:8080/path")]
-        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2@example.com:8080/path", "***example.com:8080/path\nhttps://user2@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com/path", "https://user:***@example.com/path")]
+        [InlineData("http://user:pass@example.com/path", "http://user:***@example.com/path")]
+        [InlineData("ftp://user:pass@example.com/path", "ftp://user:***@example.com/path")]
+        [InlineData("https://user:pass@example.com/weird:thing@path", "https://user:***@example.com/weird:thing@path")]
+        [InlineData("https://user:pass@example.com:8080/path", "https://user:***@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2:***@example.com:8080/path")]
+        [InlineData("https://user@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user@example.com:8080/path\nhttps://user2:***@example.com:8080/path")]
+        [InlineData("https://user:pass@example.com:8080/path\nhttps://user2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2@example.com:8080/path")]
         // some URLs without secrets to mask
         [InlineData("https://example.com/path", "https://example.com/path")]
         [InlineData("http://example.com/path", "http://example.com/path")]
         [InlineData("ftp://example.com/path", "ftp://example.com/path")]
         [InlineData("ssh://example.com/path", "ssh://example.com/path")]
         [InlineData("https://example.com/@path", "https://example.com/@path")]
-        [InlineData("https://example.com:8080/path", "https://example.com:8080/path")]
         [InlineData("https://example.com/weird:thing@path", "https://example.com/weird:thing@path")]
-        public void UrlCredentialsAreMaskedSecretMaskerVSO(string input, string expected)
+        [InlineData("https://example.com:8080/path", "https://example.com:8080/path")]
+        public void UrlSecretsAreMaskedSecretMaskerVSO(string input, string expected)
         {
             // Arrange.
 
             Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", null);
             Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
 
-            using (var _hc = Setup(testName: nameof(UrlCredentialsAreMaskedSecretMaskerVSO)))
+            using (var _hc = Setup())
             {
                 // Act.
                 var result = _hc.SecretMasker.MaskSecrets(input);
@@ -253,7 +253,6 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         // Some secrets that the scanner should NOT suppress.
         [InlineData("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", "SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==")]
         [InlineData("The password is knock knock knock", "The password is knock knock knock")]
-        [InlineData("https://user:pass@example.com/path", "***example.com/path")]
         public void OtherSecretsAreMaskedBuiltInSecretsMasker(string input, string expected)
         {
             // Arrange.
