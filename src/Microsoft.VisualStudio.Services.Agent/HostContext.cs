@@ -22,9 +22,8 @@ using Agent.Sdk.SecretMasking;
 using Pipelines = Microsoft.TeamFoundation.DistributedTask.Pipelines;
 using Agent.Sdk.Util;
 using Microsoft.TeamFoundation.DistributedTask.Logging;
-using SecretMasker = Agent.Sdk.SecretMasking.SecretMasker;
-using LegacySecretMasker = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
-using Agent.Sdk.Util.SecretMasking;
+using SecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
+using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 
 namespace Microsoft.VisualStudio.Services.Agent
 {
@@ -72,7 +71,7 @@ namespace Microsoft.VisualStudio.Services.Agent
         private static int[] _vssHttpCredentialEventIds = new int[] { 11, 13, 14, 15, 16, 17, 18, 20, 21, 22, 27, 29 };
         private readonly ConcurrentDictionary<Type, object> _serviceInstances = new ConcurrentDictionary<Type, object>();
         protected readonly ConcurrentDictionary<Type, Type> ServiceTypes = new ConcurrentDictionary<Type, Type>();
-        private ILoggedSecretMasker _secretMasker;
+        private ILoggedSecretMasker _loggedSecretMasker;
         private readonly ProductInfoHeaderValue _userAgent = new ProductInfoHeaderValue($"VstsAgentCore-{BuildConstants.AgentPackage.PackageName}", BuildConstants.AgentPackage.Version);
         private CancellationTokenSource _agentShutdownTokenSource = new CancellationTokenSource();
         private object _perfLock = new object();
@@ -83,21 +82,33 @@ namespace Microsoft.VisualStudio.Services.Agent
         private AssemblyLoadContext _loadContext;
         private IDisposable _httpTraceSubscription;
         private IDisposable _diagListenerSubscription;
-        private LegacySecretMasker _legacySecretMasker = new LegacySecretMasker();
-        private SecretMasker _newSecretMasker = new SecretMasker();
         private StartupType _startupType;
         private string _perfFile;
         private HostType _hostType;
         public event EventHandler Unloading;
         public CancellationToken AgentShutdownToken => _agentShutdownTokenSource.Token;
         public ShutdownReason AgentShutdownReason { get; private set; }
-        public ILoggedSecretMasker SecretMasker => _secretMasker;
+        public ILoggedSecretMasker SecretMasker => _loggedSecretMasker;
         public ProductInfoHeaderValue UserAgent => _userAgent;
 
         public HostContext(HostType hostType, string logFile = null)
         {
-            var useNewSecretMasker =  AgentKnobs.EnableNewSecretMasker.GetValue(this).AsBoolean();
-            _secretMasker = useNewSecretMasker ? new LoggedSecretMasker(_newSecretMasker) : new LegacyLoggedSecretMasker(_legacySecretMasker);
+            // In the presence of the new 'EnableOssSecretMasker' switch, we opt into the 
+            // package-delivered secret masker from Microsoft.Security.Utilities. Otherwise,
+            // we select the interim built-in version or the legacy VSO version, after
+            // consultiung the 'EnableNewSecretMasker' switch.
+            var useOssSecretMasker = AgentKnobs.EnableOssSecretMasker.GetValue(this).AsBoolean();
+            var useBuiltInSecretMasker = AgentKnobs.EnableNewSecretMasker.GetValue(this).AsBoolean();
+
+#pragma warning disable CA2000 // Dispose objects before losing scope. False positive: _loggedSecretMasker takes ownership and will handle disposal.
+            ISecretMaskerVSO _secretMaskerVSO = useOssSecretMasker ? new OssSecretMasker()
+                : useBuiltInSecretMasker
+                    ? new BuiltInSecretMasker()
+                    : new SecretMaskerVSO();
+#pragma warning restore CA2000
+
+            _loggedSecretMasker = new LoggedSecretMasker(_secretMaskerVSO);
+
             // Validate args.
             if (hostType == HostType.Undefined)
             {
@@ -108,10 +119,20 @@ namespace Microsoft.VisualStudio.Services.Agent
             _loadContext = AssemblyLoadContext.GetLoadContext(typeof(HostContext).GetTypeInfo().Assembly);
             _loadContext.Unloading += LoadContext_Unloading;
 
-            this.SecretMasker.AddValueEncoder(ValueEncoders.JsonStringEscape, $"HostContext_{WellKnownSecretAliases.JsonStringEscape}");
+            // Having created one of three secret maskers, we now need to supplement the core masking capability with
+            // additional checks. The original VSO secret masker has no additional redactions specific to credentials.
+
+            if (!useOssSecretMasker) // OSS secret masker already has these patterns.
+            {
+                this.AddAdditionalMaskingRegexes();
+            }
+
             this.SecretMasker.AddValueEncoder(ValueEncoders.UriDataEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
             this.SecretMasker.AddValueEncoder(ValueEncoders.BackslashEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
-            this.SecretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern, $"HostContext_{WellKnownSecretAliases.UrlSecretPattern}");
+            this.SecretMasker.AddValueEncoder(ValueEncoders.JsonStringEscape, $"HostContext_{WellKnownSecretAliases.JsonStringEscape}");
+
+            string urlSecretPattern = useOssSecretMasker ? AdditionalMaskingRegexes.UrlSecretPatternNonBacktracking : AdditionalMaskingRegexes.UrlSecretPattern;
+            this.SecretMasker.AddRegex(urlSecretPattern, $"HostContext_{WellKnownSecretAliases.UrlSecretPattern}");
 
             // Create the trace manager.
             if (string.IsNullOrEmpty(logFile))
@@ -612,10 +633,8 @@ namespace Microsoft.VisualStudio.Services.Agent
                 _trace = null;
                 _httpTrace?.Dispose();
                 _httpTrace = null;
-                _legacySecretMasker?.Dispose();
-                _legacySecretMasker = null;
-                _newSecretMasker?.Dispose();
-                _newSecretMasker = null;
+                _loggedSecretMasker?.Dispose();
+                _loggedSecretMasker = null;
 
                 _agentShutdownTokenSource?.Dispose();
                 _agentShutdownTokenSource = null;

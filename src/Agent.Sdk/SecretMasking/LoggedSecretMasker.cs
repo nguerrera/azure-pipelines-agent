@@ -8,11 +8,19 @@ using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecre
 namespace Agent.Sdk.SecretMasking
 {
     /// <summary>
-    /// Extended secret masker service, that allows to log origins of secrets
+    /// Extended secret masker service that allows specifying the origin
+    /// of any masking operation. It works by wrapping an existing
+    /// ISecretMasker implementation and an optionally settable
+    /// ITraceWriter instance for secret origin logging operations.
+    /// In the agent today, this class can be initialized with up to
+    /// three distinct ISecretMasker implementations, the one that ships
+    /// in VSO itself, a copy of that code bundled into this agent repo,
+    /// and the official Microsoft open source secret maker, implemented
+    /// at https://github/microsoft/security-utilities.
     /// </summary>
     public class LoggedSecretMasker : ILoggedSecretMasker
     {
-        private ISecretMasker _secretMasker;
+        private ISecretMaskerVSO _secretMasker;
         private ITraceWriter _trace;
 
 
@@ -21,7 +29,7 @@ namespace Agent.Sdk.SecretMasking
             this._trace?.Info(msg);
         }
 
-        public LoggedSecretMasker(ISecretMasker secretMasker)
+        public LoggedSecretMasker(ISecretMaskerVSO secretMasker)
         {
             this._secretMasker = secretMasker;
         }
@@ -65,6 +73,7 @@ namespace Agent.Sdk.SecretMasking
         public void AddRegex(string pattern, string origin)
         {
             this.Trace($"Setting up regex for origin: {origin}.");
+            this.Trace($"Regex value: {pattern}.");
             if (pattern == null)
             {
                 this.Trace($"Pattern is empty.");
@@ -117,7 +126,6 @@ namespace Agent.Sdk.SecretMasking
         public void AddValueEncoder(ValueEncoder encoder, string origin)
         {
             this.Trace($"Setting up value for origin: {origin}");
-            this.Trace($"Length: {encoder.ToString().Length}.");
             if (encoder == null)
             {
                 this.Trace($"Encoder is empty.");
@@ -127,7 +135,7 @@ namespace Agent.Sdk.SecretMasking
             AddValueEncoder(encoder);
         }
 
-        public ISecretMasker Clone()
+        public LoggedSecretMasker Clone()
         {
             return new LoggedSecretMasker(this._secretMasker.Clone());
         }
@@ -138,5 +146,23 @@ namespace Agent.Sdk.SecretMasking
         }
 
         ISecretMaskerVSO ISecretMaskerVSO.Clone() => this.Clone();
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_secretMasker is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+                _secretMasker = null;
+            }
+        }
     }
 }
