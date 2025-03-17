@@ -9,7 +9,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 {
     public class BuiltInLoggedSecretMaskerL0 : LoggedSecretMaskerTestsBase
     {
-        protected override ISecretMasker InitializeSecretMasker()
+        protected override ISecretMasker CreateSecretMasker()
         {
             return new BuiltInSecretMasker();
         }
@@ -17,7 +17,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 
     public class OssLoggedSecretMaskerL0 : LoggedSecretMaskerTestsBase
     {
-        protected override ISecretMasker InitializeSecretMasker()
+        protected override ISecretMasker CreateSecretMasker()
         {
             return new OssSecretMasker();
         }
@@ -25,7 +25,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 
     public class LoggedSecretMaskerVSOL0 : LoggedSecretMaskerTestsBase
     {
-        protected override ISecretMasker InitializeSecretMasker()
+        protected override ISecretMasker CreateSecretMasker()
         {
             return new SecretMasker();
         }
@@ -33,14 +33,14 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 
     public abstract class LoggedSecretMaskerTestsBase
     {
-        protected abstract ISecretMasker InitializeSecretMasker();
+        protected abstract ISecretMasker CreateSecretMasker();
 
         [Fact]
         [Trait("Level", "L0")]
         [Trait("Category", "SecretMasker")]
         public void LoggedSecretMasker_MaskingSecrets()
         {
-            using var lsm = new LoggedSecretMasker(InitializeSecretMasker())
+            using var lsm = new LoggedSecretMasker(CreateSecretMasker())
             {
                 MinSecretLength = 0
             };
@@ -57,7 +57,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void LoggedSecretMasker_ShortSecret_Removes_From_Dictionary()
         {
-            using var lsm = new LoggedSecretMasker(InitializeSecretMasker())
+            using var lsm = new LoggedSecretMasker(CreateSecretMasker())
             {
                 MinSecretLength = 0
             };
@@ -76,7 +76,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void LoggedSecretMasker_ShortSecret_Removes_From_Dictionary_BoundaryValue()
         {
-            using var lsm = new LoggedSecretMasker(InitializeSecretMasker())
+            using var lsm = new LoggedSecretMasker(CreateSecretMasker())
             {
                 MinSecretLength = LoggedSecretMasker.MinSecretLengthLimit
             };
@@ -93,7 +93,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void LoggedSecretMasker_ShortSecret_Removes_From_Dictionary_BoundaryValue2()
         {
-            using var lsm = new LoggedSecretMasker(InitializeSecretMasker())
+            using var lsm = new LoggedSecretMasker(CreateSecretMasker())
             {
                 MinSecretLength = LoggedSecretMasker.MinSecretLengthLimit
             };
@@ -110,7 +110,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void LoggedSecretMasker_Skipping_ShortSecrets()
         {
-            using var lsm = new LoggedSecretMasker(InitializeSecretMasker())
+            using var lsm = new LoggedSecretMasker(CreateSecretMasker())
             {
                 MinSecretLength = 3
             };
@@ -126,7 +126,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void LoggedSecretMasker_Sets_MinSecretLength_To_MaxValue()
         {
-            using var lsm = new LoggedSecretMasker(InitializeSecretMasker());
+            using var lsm = new LoggedSecretMasker(CreateSecretMasker());
             var expectedMinSecretsLengthValue = LoggedSecretMasker.MinSecretLengthLimit;
 
             lsm.MinSecretLength = LoggedSecretMasker.MinSecretLengthLimit + 1;
@@ -139,7 +139,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         [Trait("Category", "SecretMasker")]
         public void LoggedSecretMasker_NegativeValue_Passed()
         {
-            using var lsm = new LoggedSecretMasker(InitializeSecretMasker())
+            using var lsm = new LoggedSecretMasker(CreateSecretMasker())
             {
                 MinSecretLength = -2
             };
