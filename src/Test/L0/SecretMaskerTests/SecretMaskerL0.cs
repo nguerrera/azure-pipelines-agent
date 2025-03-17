@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using Agent.Sdk.SecretMasking;
-using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoder;
-using ValueEncoders = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoders;
+using Microsoft.TeamFoundation.DistributedTask.Logging;
 using Xunit;
-using SecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
-using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 
 namespace Microsoft.VisualStudio.Services.Agent.Tests
 {
@@ -20,11 +18,11 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         }
     }
 
-    public sealed class SecretMaskerVSOL0 : SecretMaskerL0<SecretMaskerVSO>
+    public sealed class SecretMaskerVSOL0 : SecretMaskerL0<SecretMasker>
     {
-        protected override SecretMaskerVSO InitializeSecretMasker()
+        protected override SecretMasker InitializeSecretMasker()
         {
-            var testSecretMasker = new SecretMaskerVSO();
+            var testSecretMasker = new SecretMasker();
             testSecretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern);
             return testSecretMasker;
         }
@@ -40,7 +38,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         }
     }
 
-    public abstract class SecretMaskerL0<TSecretMasker> where TSecretMasker : IDisposable, ISecretMaskerVSO
+    public abstract class SecretMaskerL0<TSecretMasker> where TSecretMasker : IDisposable, ISecretMasker
     {
         protected abstract TSecretMasker InitializeSecretMasker();
 

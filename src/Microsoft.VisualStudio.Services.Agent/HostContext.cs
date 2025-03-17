@@ -22,8 +22,6 @@ using Agent.Sdk.SecretMasking;
 using Pipelines = Microsoft.TeamFoundation.DistributedTask.Pipelines;
 using Agent.Sdk.Util;
 using Microsoft.TeamFoundation.DistributedTask.Logging;
-using SecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
-using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 
 namespace Microsoft.VisualStudio.Services.Agent
 {
@@ -101,13 +99,13 @@ namespace Microsoft.VisualStudio.Services.Agent
             var useBuiltInSecretMasker = AgentKnobs.EnableNewSecretMasker.GetValue(this).AsBoolean();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope. False positive: _loggedSecretMasker takes ownership and will handle disposal.
-            ISecretMaskerVSO _secretMaskerVSO = useOssSecretMasker ? new OssSecretMasker()
+            ISecretMasker secretMasker = useOssSecretMasker ? new OssSecretMasker()
                 : useBuiltInSecretMasker
                     ? new BuiltInSecretMasker()
-                    : new SecretMaskerVSO();
+                    : new SecretMasker();
 #pragma warning restore CA2000
 
-            _loggedSecretMasker = new LoggedSecretMasker(_secretMaskerVSO);
+            _loggedSecretMasker = new LoggedSecretMasker(secretMasker);
 
             // Validate args.
             if (hostType == HostType.Undefined)

@@ -2,8 +2,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoder;
-using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
+
+using Microsoft.TeamFoundation.DistributedTask.Logging;
 
 namespace Agent.Sdk.SecretMasking
 {
@@ -20,7 +20,7 @@ namespace Agent.Sdk.SecretMasking
     /// </summary>
     public class LoggedSecretMasker : ILoggedSecretMasker
     {
-        private ISecretMaskerVSO _secretMasker;
+        private ISecretMasker _secretMasker;
         private ITraceWriter _trace;
 
 
@@ -29,7 +29,7 @@ namespace Agent.Sdk.SecretMasking
             this._trace?.Info(msg);
         }
 
-        public LoggedSecretMasker(ISecretMaskerVSO secretMasker)
+        public LoggedSecretMasker(ISecretMasker secretMasker)
         {
             this._secretMasker = secretMasker;
         }
@@ -145,7 +145,7 @@ namespace Agent.Sdk.SecretMasking
             return this._secretMasker.MaskSecrets(input);
         }
 
-        ISecretMaskerVSO ISecretMaskerVSO.Clone() => this.Clone();
+        ISecretMasker ISecretMasker.Clone() => this.Clone();
 
         public void Dispose()
         {

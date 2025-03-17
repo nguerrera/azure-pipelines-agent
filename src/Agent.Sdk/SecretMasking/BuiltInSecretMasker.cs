@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoder;
-using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 using System.Text.RegularExpressions;
+using System.Threading;
+
+using Microsoft.TeamFoundation.DistributedTask.Logging;
 
 namespace Agent.Sdk.SecretMasking;
 
@@ -20,7 +20,7 @@ namespace Agent.Sdk.SecretMasking;
 /// Microsoft's open source version (which is itself also based on the VSO
 /// implementation).
 /// </summary>
-public sealed class BuiltInSecretMasker : ISecretMaskerVSO, IDisposable
+public sealed class BuiltInSecretMasker : ISecretMasker, IDisposable
  {
      public BuiltInSecretMasker() : this(0)
      {
@@ -233,7 +233,7 @@ public sealed class BuiltInSecretMasker : ISecretMaskerVSO, IDisposable
      }
 
 
-     public ISecretMaskerVSO Clone() => new BuiltInSecretMasker(this);
+     public ISecretMasker Clone() => new BuiltInSecretMasker(this);
 
      public void Dispose()
      {
@@ -420,7 +420,7 @@ public sealed class BuiltInSecretMasker : ISecretMaskerVSO, IDisposable
         }
     }
 
-    ISecretMaskerVSO ISecretMaskerVSO.Clone()
+    ISecretMasker ISecretMasker.Clone()
     {
         return this.Clone();
     }

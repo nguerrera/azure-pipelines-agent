@@ -2,14 +2,15 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoder;
-using ISecretMaskerVSO = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 
 using Microsoft.Security.Utilities;
 
+using ISecretMasker = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
+using ValueEncoder = Microsoft.TeamFoundation.DistributedTask.Logging.ValueEncoder;
+
 namespace Agent.Sdk.SecretMasking;
 
-public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
+public sealed class OssSecretMasker : ISecretMasker, IDisposable
 {
     private SecretMasker _secretMasker;
 
@@ -142,5 +143,5 @@ public sealed class OssSecretMasker : ISecretMaskerVSO, IDisposable
         }
     }
 
-    ISecretMaskerVSO ISecretMaskerVSO.Clone() => this.Clone();
+    ISecretMasker ISecretMasker.Clone() => this.Clone();
 }
