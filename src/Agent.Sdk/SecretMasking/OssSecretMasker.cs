@@ -14,16 +14,13 @@ public sealed class OssSecretMasker : ISecretMasker, IDisposable
 {
     private SecretMasker _secretMasker;
 
-    public OssSecretMasker() : this(0)
+    public OssSecretMasker() : this(Array.Empty<RegexPattern>())
     {
     }
 
-    public OssSecretMasker(int minSecretLength) : base()
+    public OssSecretMasker(IEnumerable<RegexPattern> patterns)
     {
-        _secretMasker = new SecretMasker(regexSecrets: WellKnownRegexPatterns.PreciselyClassifiedSecurityKeys,
-                                         generateCorrelatingIds: true);
-
-        _secretMasker.MinimumSecretLength = minSecretLength;
+        _secretMasker = new SecretMasker(patterns, generateCorrelatingIds: true);
         _secretMasker.DefaultRegexRedactionToken = "***";
     }
 
@@ -37,8 +34,8 @@ public sealed class OssSecretMasker : ISecretMasker, IDisposable
     /// </summary>
     public int MinSecretLength
     {
-        get { return _secretMasker.MinimumSecretLength; }
-        set { _secretMasker.MinimumSecretLength = value; }
+        get => _secretMasker.MinimumSecretLength;
+        set => _secretMasker.MinimumSecretLength = value;
     }
 
     /// <summary>
@@ -73,7 +70,7 @@ public sealed class OssSecretMasker : ISecretMasker, IDisposable
         _secretMasker = null;
     }
 
-    public String MaskSecrets(string input)
+    public string MaskSecrets(string input)
     {
         return _secretMasker.MaskSecrets(input);
     }

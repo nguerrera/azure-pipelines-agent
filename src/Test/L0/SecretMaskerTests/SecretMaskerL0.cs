@@ -8,17 +8,7 @@ using Xunit;
 
 namespace Microsoft.VisualStudio.Services.Agent.Tests
 {
-    public sealed class BuiltInSecretMaskerL0 : SecretMaskerL0<BuiltInSecretMasker>
-    {
-        protected override BuiltInSecretMasker CreateSecretMasker()
-        {
-            var testSecretMasker = new BuiltInSecretMasker();
-            testSecretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern);
-            return testSecretMasker;
-        }
-    }
-
-    public sealed class SecretMaskerVSOL0 : SecretMaskerL0<SecretMasker>
+    public sealed class LegacySecretMaskerL0 : SecretMaskerL0<SecretMasker>
     {
         protected override SecretMasker CreateSecretMasker()
         {

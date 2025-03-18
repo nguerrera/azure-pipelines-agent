@@ -8,15 +8,13 @@ using Microsoft.TeamFoundation.DistributedTask.Logging;
 namespace Agent.Sdk.SecretMasking
 {
     /// <summary>
-    /// Extended secret masker service that allows specifying the origin
-    /// of any masking operation. It works by wrapping an existing
-    /// ISecretMasker implementation and an optionally settable
-    /// ITraceWriter instance for secret origin logging operations.
-    /// In the agent today, this class can be initialized with up to
-    /// three distinct ISecretMasker implementations, the one that ships
-    /// in VSO itself, a copy of that code bundled into this agent repo,
-    /// and the official Microsoft open source secret maker, implemented
-    /// at https://github/microsoft/security-utilities.
+    /// Extended secret masker service that allows specifying the origin of any
+    /// masking operation. It works by wrapping an existing ISecretMasker
+    /// implementation and an optionally settable ITraceWriter instance for
+    /// secret origin logging operations. In the agent today, this class can be
+    /// initialized with two distinct ISecretMasker implementations, the one
+    /// that ships in VSO itself, and the official Microsoft open source secret
+    /// masker, implemented at https://github/microsoft/security-utilities.
     /// </summary>
     public class LoggedSecretMasker : ILoggedSecretMasker
     {

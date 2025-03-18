@@ -453,7 +453,7 @@ namespace Microsoft.VisualStudio.Services.Agent
                 public static readonly string GitShallowDepth = "agent.source.git.shallowFetchDepth";
                 public static readonly string SkipSyncSource = "agent.source.skip";
                 public static readonly string EnableAdditionalMaskingRegexes = "agent.enableadditionalmaskingregexes";
-                public static readonly string UseMaskingPerformanceEnhancements = "agent.agentUseMaskingPerformanceEnhancements";
+                public static readonly string UseMaskingPerformanceEnhancements = "agent.useMaskingPerformanceEnhancements";
             }
 
             public static class Maintenance

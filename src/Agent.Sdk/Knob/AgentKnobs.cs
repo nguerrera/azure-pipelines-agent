@@ -675,16 +675,16 @@ namespace Agent.Sdk.Knob
             new PipelineFeatureSource("UseNode20ToStartContainer"),
             new BuiltInDefaultKnobSource("false"));
 
-        public static readonly Knob EnableOssSecretMasker = new Knob(
-            nameof(EnableOssSecretMasker),
-            "If true, the agent will use Microsoft's open source SecretMasker with latest filters & performance enhancements",
-            new EnvironmentKnobSource("AZP_ENABLE_OSS_SECRET_MASKER"),
-            new BuiltInDefaultKnobSource("false"));
-
         public static readonly Knob EnableNewSecretMasker = new Knob(
             nameof(EnableNewSecretMasker),
-            "If true, the agent will use the built-in SecretMasker with additional filters & performance enhancements over the VSO version",
+            "If true, the agent will use new SecretMasker with additional filters & performance enhancements",
             new EnvironmentKnobSource("AZP_ENABLE_NEW_SECRET_MASKER"),
+            new BuiltInDefaultKnobSource("false"));
+
+        public static readonly Knob EnableAdditionalMaskingRegexes = new Knob(
+            nameof(EnableAdditionalMaskingRegexes),
+            "If true, SecretMasker will use additional regexes to mask well-known secret patterns",
+            new EnvironmentKnobSource("AZP_ENABLE_ADDITIONAL_MASKING_REGEXES"),
             new BuiltInDefaultKnobSource("false"));
 
         public static readonly Knob AddDockerInitOption = new Knob(

@@ -7,14 +7,6 @@ using Xunit;
 
 namespace Microsoft.VisualStudio.Services.Agent.Tests
 {
-    public class BuiltInLoggedSecretMaskerL0 : LoggedSecretMaskerTestsBase
-    {
-        protected override ISecretMasker CreateSecretMasker()
-        {
-            return new BuiltInSecretMasker();
-        }
-    }
-
     public class OssLoggedSecretMaskerL0 : LoggedSecretMaskerTestsBase
     {
         protected override ISecretMasker CreateSecretMasker()
@@ -23,7 +15,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         }
     }
 
-    public class LoggedSecretMaskerVSOL0 : LoggedSecretMaskerTestsBase
+    public class LegacyLoggedSecretMaskerL0 : LoggedSecretMaskerTestsBase
     {
         protected override ISecretMasker CreateSecretMasker()
         {
