@@ -34,7 +34,7 @@ namespace Microsoft.VisualStudio.Services.Agent
         private const string lookAhead = "@";
         public static string UrlSecretPattern { get; } = $"(?<={lookBehind}){urlMatch}(?={lookAhead})";
 
-        // Microsoft.Security.Utilities.Core SecretMasker uses NonBacktracking
+        // Microsoft.Security.Utilities.Core SecretMasker uses a non-backtracking
         // engine that does not support lookbehind/lookahead. Instead, a capture
         // group named refine is used to select a sub-portion of a match.
         public static string UrlSecretPatternNonBacktracking { get; } = $"{lookBehind}(?<refine>{urlMatch}){lookAhead}";

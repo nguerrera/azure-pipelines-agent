@@ -200,7 +200,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             }
             finally
             {
-                Environment.SetEnvironmentVariable("AZP_ENABLE_OSS_SECRET_MASKER", null);
+                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
                 Environment.SetEnvironmentVariable("AZP_ENABLE_ADDITIONAL_MASKING_REGEXES", null);
             }
         }
