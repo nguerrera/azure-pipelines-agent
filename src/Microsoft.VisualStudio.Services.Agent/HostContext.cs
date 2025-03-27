@@ -183,6 +183,13 @@ namespace Microsoft.VisualStudio.Services.Agent
             // repository.
             bool useAdditionalMaskingRegexes = AgentKnobs.EnableAdditionalMaskingRegexes.GetValue(this).AsBoolean();
 
+            return CreateSecretMasker(useNewSecretMasker, useAdditionalMaskingRegexes);
+        }
+
+        public static ILoggedSecretMasker CreateSecretMasker(
+            bool useNewSecretMasker,
+            bool useAdditionalMaskingRegexes)
+        {
 #pragma warning disable CA2000 // Dispose objects before losing scope. False positive: LoggedSecretMasker takes ownership.
             ISecretMasker rawSecretMasker;
             if (useNewSecretMasker)
