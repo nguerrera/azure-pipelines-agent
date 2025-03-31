@@ -397,7 +397,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Listener
                 using (var processInvoker = HostContext.CreateService<IProcessInvoker>())
                 {
                     var featureFlagProvider = HostContext.GetService<IFeatureFlagProvider>();
-                    var newSecretMaskerFeatureFlagStatus = await featureFlagProvider.GetFeatureFlagAsync(HostContext, "DistributedTask.Agent.UseMaskingPerformanceEnhancements", Trace);
+                    var newSecretMaskerFeatureFlagStatus = await featureFlagProvider.GetFeatureFlagAsync(HostContext, "DistributedTask.Agent.EnableNewSecretMasker", Trace);
                     var additionalMaskingRegexesFlagStatus = await featureFlagProvider.GetFeatureFlagAsync(HostContext, "DistributedTask.Agent.EnableAdditionalMaskingRegexes", Trace);
                     var environment = new Dictionary<string, string>();
 
