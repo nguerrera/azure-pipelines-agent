@@ -178,9 +178,11 @@ namespace Microsoft.VisualStudio.Services.Agent
 
             // When enabled, use add additional regex patterns to the secret
             // masker. For the OSS package-provided secret masker, this will use
-            // its 'PreciselyClassifiedSecurityKeys'. For the legacy secret
-            // masker, this will use 'SecurityUtilitiesPatterns' implemented in
-            // this repository.
+            // its 'PreciselyClassifiedSecurityKeys'. This class of pattern
+            // effectively admits no false positives and is strongly oriented on
+            // detecting the latest Azure provider API key formats. For the
+            // legacy secret masker, this will use 'SecurityUtilitiesPatterns'
+            // implemented in this repository.
             bool useAdditionalMaskingRegexes = AgentKnobs.EnableAdditionalMaskingRegexes.GetValue(this).AsBoolean();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope. False positive: LoggedSecretMasker takes ownership.
