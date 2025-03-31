@@ -179,8 +179,8 @@ namespace Microsoft.VisualStudio.Services.Agent
             // When enabled, use add additional regex patterns to the secret
             // masker. For the OSS package-provided secret masker, this will use
             // its 'PreciselyClassifiedSecurityKeys'. For the legacy secret
-            // masker, this will use 'CredScanPatterns' implemented in this
-            // repository.
+            // masker, this will use 'SecurityUtilitiesPatterns' implemented in
+            // this repository.
             bool useAdditionalMaskingRegexes = AgentKnobs.EnableAdditionalMaskingRegexes.GetValue(this).AsBoolean();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope. False positive: LoggedSecretMasker takes ownership.
@@ -218,9 +218,9 @@ namespace Microsoft.VisualStudio.Services.Agent
 
                 if (useAdditionalMaskingRegexes)
                 {
-                    foreach (var pattern in AdditionalMaskingRegexes.CredScanPatterns)
+                    foreach (var pattern in AdditionalMaskingRegexes.SecurityUtilitiesPatterns)
                     {
-                        secretMasker.AddRegex(pattern, $"HostContext_{WellKnownSecretAliases.CredScanPatterns}");
+                        secretMasker.AddRegex(pattern, $"HostContext_{WellKnownSecretAliases.SecurityUtilitiesPatterns}");
                     }
                 }
             }
