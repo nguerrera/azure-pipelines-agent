@@ -137,6 +137,76 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: false);
         }
 
+        private static readonly (string, string)[] _escapedSecretCases = new[]
+        {
+            // backslash escape
+            ("before Mask\\This after", "before *** after"),
+            ("before Mask\\\\This after", "before *** after"),
+            // uri escape
+            ("before Mask%20This after", "before *** after"),
+            ("before Mask This after", "before *** after"),
+            // json escape
+            ("before Mask\tThis after", "before *** after"),
+            ("before Mask\\tThis after", "before *** after"),
+        };
+
+        private static readonly string[] _unescapedSecretValues = new[]
+        {
+            @"Mask\This",
+            @"Mask This",
+            @"Mask\tThis",
+        };
+
+        public static readonly SecretCases EscapedSecrets_NewMasker_AdditionalRegexes =
+            new(_escapedSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: true);
+
+        public static readonly SecretCases EscapedSecrets_NewMasker_NoAdditionalRegexes =
+            new(_escapedSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: false);
+
+        public static readonly SecretCases EscapedSecrets_LegacyMasker_AdditionalRegexes =
+            new(_escapedSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: true);
+
+        public static readonly SecretCases EscapedSecrets_LegacyMasker_NoAdditionalRegexes =
+            new(_escapedSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: false);
+
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(EscapedSecrets_NewMasker_AdditionalRegexes))]
+        public void EscapedSecrets_NewMasker_AdditionalRegexes_Masked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: true, _unescapedSecretValues);
+        }
+
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(EscapedSecrets_NewMasker_NoAdditionalRegexes))]
+        public void EscapedSecrets_NewMasker_NoAdditionalRegexes_Masked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: false, _unescapedSecretValues);
+        }
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(EscapedSecrets_LegacyMasker_AdditionalRegexes))]
+        public void EscapedSecrets_LegacyMasker_AdditionalRegexes_Masked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: true, _unescapedSecretValues);
+        }
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(EscapedSecrets_LegacyMasker_AdditionalRegexes))]
+        public void EscapedSecrets_LegacyMasker_NoAdditionalRegexes_Masked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: false, _unescapedSecretValues);
+        }
+
         private static readonly (string, string)[] _otherSecretCases = new[]
         {
             // Some secrets that the scanner SHOULD suppress.
@@ -223,7 +293,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             }
         }
 
-        private void TestSecretMasking(string input, string expected, bool useNewSecretMasker, bool useAdditionalMaskingRegexes = false, [CallerMemberName] string testName = "")
+        private void TestSecretMasking(string input, string expected, bool useNewSecretMasker, bool useAdditionalMaskingRegexes, string[] values = null, [CallerMemberName] string testName = "")
         {
             // Arrange.
             try
@@ -233,6 +303,14 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 
                 using (var _hc = Setup(testName))
                 {
+                    if (values != null)
+                    {
+                        foreach (string value in values)
+                        {
+                            _hc.SecretMasker.AddValue(value);
+                        }
+                    }
+
                     // Act.
                     var result = _hc.SecretMasker.MaskSecrets(input);
 
