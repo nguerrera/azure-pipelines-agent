@@ -182,18 +182,37 @@ namespace Microsoft.VisualStudio.Services.Agent
             // effectively admits no false positives and is strongly oriented on
             // detecting the latest Azure provider API key formats. For the
             // legacy secret masker, this will use 'SecurityUtilitiesPatterns'
-            // implemented in this repository.
+            // implemented in this repository. Also, note that URL secret
+            // masking is performed via regex in all cases, irrespective of any
+            // feature flags.
             bool useAdditionalMaskingRegexes = AgentKnobs.EnableAdditionalMaskingRegexes.GetValue(this).AsBoolean();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope. False positive: LoggedSecretMasker takes ownership.
             ISecretMasker rawSecretMasker;
             if (useNewSecretMasker)
             {
-                IEnumerable<RegexPattern> patterns = Array.Empty<RegexPattern>();
- 
+                var patterns = new List<RegexPattern>();
+
+                // https://github.com/microsoft/security-utilities/issues/175
+                //
+                // The new secret masker from Microsoft.Security.Utilities.Core
+                // provides a URL secret pattern, but has some differences in
+                // behavior. Until we reconcile these differences, we use the
+                // regex in this repo and a signature compatible with it along
+                // with the pattern metadata taken from the package.
+                RegexPattern urlCredentialsPattern = new UrlCredentials();
+                urlCredentialsPattern = new RegexPattern(
+                    id: urlCredentialsPattern.Id,
+                    name: urlCredentialsPattern.Name,
+                    patternMetadata: urlCredentialsPattern.DetectionMetadata,
+                    signatures: new HashSet<string>(new[] { "//" }),
+                    pattern: AdditionalMaskingRegexes.UrlSecretPatternNonBacktracking);
+
+                patterns.Add(urlCredentialsPattern);
+
                 if (useAdditionalMaskingRegexes)
                 {
-                    patterns = WellKnownRegexPatterns.PreciselyClassifiedSecurityKeys;
+                    patterns.AddRange(WellKnownRegexPatterns.PreciselyClassifiedSecurityKeys);
                 }
 
                 rawSecretMasker = new OssSecretMasker(patterns);
@@ -210,11 +229,7 @@ namespace Microsoft.VisualStudio.Services.Agent
             secretMasker.AddValueEncoder(ValueEncoders.UriDataEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
             secretMasker.AddValueEncoder(ValueEncoders.BackslashEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
 
-            if (useNewSecretMasker)
-            {
-                secretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPatternNonBacktracking, $"HostContext_{WellKnownSecretAliases.UrlSecretPattern}");
-            }
-            else
+            if (!useNewSecretMasker)
             {
                 secretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern, $"HostContext_{WellKnownSecretAliases.UrlSecretPattern}");
 

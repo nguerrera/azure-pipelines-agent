@@ -55,7 +55,11 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 
         private static readonly (string, string)[] _urlSecretCases = new[]
         {
-            // some URLs with secrets to mask
+            // Some URLs with secrets to mask.
+            //
+            // Note that even the new masker will use *** as the redaction token
+            // because the URL pattern does not match high-entropy secrets for
+            // which a C3ID can be computed.
             ("https://user:pass@example.com/path", "https://user:***@example.com/path"),
             ("http://user:pass@example.com/path", "http://user:***@example.com/path"),
             ("ftp://user:pass@example.com/path", "ftp://user:***@example.com/path"),
@@ -64,7 +68,17 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             ("https://user:pass@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2:***@example.com:8080/path"),
             ("https://user@example.com:8080/path\nhttps://user2:pass2@example.com:8080/path", "https://user@example.com:8080/path\nhttps://user2:***@example.com:8080/path"),
             ("https://user:pass@example.com:8080/path\nhttps://user2@example.com:8080/path", "https://user:***@example.com:8080/path\nhttps://user2@example.com:8080/path"),
-            // some URLs without secrets to mask
+
+            // These two cases stress differences between the URL secret regex
+            // in this repo and the one provided by the UrlCredentials pattern in
+            // Microsoft.Security.Utilities.Core. We always use the one in this
+            // repo but https://github.com/microsoft/security-utilities/issues/175
+            // tracks reconciling this. This might land on changing the expected
+            // behavior of these cases.
+            ("ssh://user:pass@example.com/path", "ssh://user:***@example.com/path"),
+            ("//user:pass@example.com/path", "//user:***@example.com/path"),
+
+            // Some URLs without secrets to mask
             ("https://example.com/path", null),
             ("http://example.com/path", null),
             ("ftp://example.com/path", null),
@@ -74,25 +88,53 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             ("https://example.com:8080/path", null),
         };
 
-        public static readonly SecretCases UrlSecrets_NewMasker = new(_urlSecretCases, useNewSecretMasker: true);
-        public static readonly SecretCases UrlSecrets_LegacyMasker = new(_urlSecretCases, useNewSecretMasker: false);
+        public static readonly SecretCases UrlSecrets_NewMasker_AdditionalRegexes =
+            new(_urlSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: true);
+
+        public static readonly SecretCases UrlSecrets_NewMasker_NoAdditionalRegexes =
+            new(_urlSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: false);
+
+        public static readonly SecretCases UrlSecrets_LegacyMasker_AdditionalRegexes =
+            new(_urlSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: true);
+
+        public static readonly SecretCases UrlSecrets_LegacyMasker_NoAdditionalRegexes =
+            new(_urlSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: false);
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(UrlSecrets_NewMasker))]
-        public void UrlSecrets_NewMasker_Masked(string input, string expected)
+        [MemberData(nameof(UrlSecrets_NewMasker_AdditionalRegexes))]
+        public void UrlSecrets_NewMasker_AdditionalRegexes_Masked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: true);
+            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: true);
+        }
+
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(UrlSecrets_NewMasker_NoAdditionalRegexes))]
+        public void UrlSecrets_NewMasker_NoAdditionalRegexes_Masked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: false);
         }
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(UrlSecrets_LegacyMasker))]
-        public void UrlSecrets_LegacyMasker_Masked(string input, string expected)
+        [MemberData(nameof(UrlSecrets_LegacyMasker_AdditionalRegexes))]
+        public void UrlSecrets_LegacyMasker_AdditionalRegexes_Masked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: false);
+            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: true);
+        }
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(UrlSecrets_LegacyMasker_AdditionalRegexes))]
+        public void UrlSecrets_LegacyMasker_NoAdditionalRegexes_Masked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: false);
         }
 
         private static readonly (string, string)[] _otherSecretCases = new[]
@@ -123,16 +165,16 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         };
 
         public static readonly SecretCases OtherSecrets_NewMasker_AdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: true, requireAdditionalMaskingRegexes: true, useAdditionalMaskingRegexes: true);
+            new(_otherSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: true, requireAdditionalMaskingRegexes: true);
 
         public static readonly SecretCases OtherSecrets_NewMasker_NoAdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: true, requireAdditionalMaskingRegexes: true, useAdditionalMaskingRegexes: false);
+            new(_otherSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: false, requireAdditionalMaskingRegexes: true);
 
         public static readonly SecretCases OtherSecrets_LegacyMasker_AdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: false, requireAdditionalMaskingRegexes: true, useAdditionalMaskingRegexes: true);
+            new(_otherSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: true, requireAdditionalMaskingRegexes: true);
 
         public static readonly SecretCases OtherSecrets_LegacyMasker_NoAdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: false, requireAdditionalMaskingRegexes: true, useAdditionalMaskingRegexes: false);
+            new(_otherSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: false, requireAdditionalMaskingRegexes: true);
 
         [Theory]
         [Trait("Level", "L0")]
@@ -163,7 +205,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
 
         public sealed class SecretCases : TheoryData<string, string>
         {
-            public SecretCases((string, string)[] cases, bool useNewSecretMasker, bool requireAdditionalMaskingRegexes = false, bool useAdditionalMaskingRegexes = false)
+            public SecretCases((string, string)[] cases, bool useNewSecretMasker, bool useAdditionalMaskingRegexes, bool requireAdditionalMaskingRegexes = false)
             {
                 foreach ((string secret, string redaction) in cases)
                 {
