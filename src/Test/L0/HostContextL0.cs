@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Security.Utilities;
 using System;
 using System.IO;
 using System.Reflection;
@@ -88,53 +89,25 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             ("https://example.com:8080/path", null),
         };
 
-        public static readonly SecretCases UrlSecrets_NewMasker_AdditionalRegexes =
-            new(_urlSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: true);
-
-        public static readonly SecretCases UrlSecrets_NewMasker_NoAdditionalRegexes =
-            new(_urlSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: false);
-
-        public static readonly SecretCases UrlSecrets_LegacyMasker_AdditionalRegexes =
-            new(_urlSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: true);
-
-        public static readonly SecretCases UrlSecrets_LegacyMasker_NoAdditionalRegexes =
-            new(_urlSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: false);
+        public static readonly SecretCases UrlSecrets_NewMaskerAndRegexes = new(_urlSecretCases, useNewMaskerAndRegexes: true);
+        public static readonly SecretCases UrlSecrets_LegacyMasker = new(_urlSecretCases, useNewMaskerAndRegexes: false);
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(UrlSecrets_NewMasker_AdditionalRegexes))]
-        public void UrlSecrets_NewMasker_AdditionalRegexes_Masked(string input, string expected)
+        [MemberData(nameof(UrlSecrets_NewMaskerAndRegexes))]
+        public void UrlSecrets_NewMasker_Masked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: true);
-        }
-
-
-        [Theory]
-        [Trait("Level", "L0")]
-        [Trait("Category", "Common")]
-        [MemberData(nameof(UrlSecrets_NewMasker_NoAdditionalRegexes))]
-        public void UrlSecrets_NewMasker_NoAdditionalRegexes_Masked(string input, string expected)
-        {
-            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: false);
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: true);
         }
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(UrlSecrets_LegacyMasker_AdditionalRegexes))]
-        public void UrlSecrets_LegacyMasker_AdditionalRegexes_Masked(string input, string expected)
+        [MemberData(nameof(UrlSecrets_LegacyMasker))]
+        public void UrlSecrets_LegacyMasker_Masked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: true);
-        }
-
-        [Theory]
-        [Trait("Level", "L0")]
-        [Trait("Category", "Common")]
-        [MemberData(nameof(UrlSecrets_LegacyMasker_AdditionalRegexes))]
-        public void UrlSecrets_LegacyMasker_NoAdditionalRegexes_Masked(string input, string expected)
-        {
-            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: false);
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: false);
         }
 
         private static readonly (string, string)[] _escapedSecretCases = new[]
@@ -157,60 +130,33 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             @"Mask\tThis",
         };
 
-        public static readonly SecretCases EscapedSecrets_NewMasker_AdditionalRegexes =
-            new(_escapedSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: true);
-
-        public static readonly SecretCases EscapedSecrets_NewMasker_NoAdditionalRegexes =
-            new(_escapedSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: false);
-
-        public static readonly SecretCases EscapedSecrets_LegacyMasker_AdditionalRegexes =
-            new(_escapedSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: true);
-
-        public static readonly SecretCases EscapedSecrets_LegacyMasker_NoAdditionalRegexes =
-            new(_escapedSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: false);
-
+        public static readonly SecretCases EscapedSecrets_NewMasker = new(_escapedSecretCases, useNewMaskerAndRegexes: true);
+        public static readonly SecretCases EscapedSecrets_LegacyMasker = new(_escapedSecretCases, useNewMaskerAndRegexes: false);
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(EscapedSecrets_NewMasker_AdditionalRegexes))]
-        public void EscapedSecrets_NewMasker_AdditionalRegexes_Masked(string input, string expected)
+        [MemberData(nameof(EscapedSecrets_NewMasker))]
+        public void EscapedSecrets_NewMasker_Masked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: true, _unescapedSecretValues);
-        }
-
-
-        [Theory]
-        [Trait("Level", "L0")]
-        [Trait("Category", "Common")]
-        [MemberData(nameof(EscapedSecrets_NewMasker_NoAdditionalRegexes))]
-        public void EscapedSecrets_NewMasker_NoAdditionalRegexes_Masked(string input, string expected)
-        {
-            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: false, _unescapedSecretValues);
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: true, _unescapedSecretValues);
         }
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(EscapedSecrets_LegacyMasker_AdditionalRegexes))]
-        public void EscapedSecrets_LegacyMasker_AdditionalRegexes_Masked(string input, string expected)
+        [MemberData(nameof(EscapedSecrets_LegacyMasker))]
+        public void EscapedSecrets_LegacyMasker_Masked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: true, _unescapedSecretValues);
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: false, _unescapedSecretValues);
         }
 
-        [Theory]
-        [Trait("Level", "L0")]
-        [Trait("Category", "Common")]
-        [MemberData(nameof(EscapedSecrets_LegacyMasker_AdditionalRegexes))]
-        public void EscapedSecrets_LegacyMasker_NoAdditionalRegexes_Masked(string input, string expected)
+        private static readonly (string, string)[] _secretsRequiringNewMasker = new[]
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: false, _unescapedSecretValues);
-        }
-
-        private static readonly (string, string)[] _otherSecretCases = new[]
-        {
-            // Some secrets that the scanner SHOULD suppress.
-            // NOTE: String concat used to highlight signatures and avoid false positives from push protection.
+            // Some secrets that the new masker with its added regexes SHOULD
+            // suppress, but the legacy masker will not suppress. NOTE: String
+            // concat used to highlight signatures and avoid false positives
+            // from push protection.
             ("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead" + "APIM" + "do9bzQ==", "SEC101/181:AQYnVRHEp9bsvtiS75Hw"),
             ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + "ACDb" + "OpqrYA==", "SEC101/160:cgAuNarRt3XE67OyFKtT"),
             ("deaddeaddeaddeaddeaddeaddeaddeadde/dead+deaddeaddeaddeaddeaddeaddeaddeaddead" + "+ABa" + "cEmI0Q==", "SEC101/163:hV8JHmDwlzKVQLDQ4aVz"),
@@ -229,77 +175,86 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             ("npm_" + "deaddeaddeaddeaddeaddeaddeaddeaddead", "SEC101/050:bUOMn/+Dx0jUK71D+nHu"),
             ("xxx" + "7Q~" + "dead.dead.DEAD-DEAD-dead~deadxx", "SEC101/156:WNRIG2TMMQjdUEGSNRIQ"),
             ("xxx" + "7Q~" + "dead.dead.DEAD-DEAD-dead~deadxx", "SEC101/156:WNRIG2TMMQjdUEGSNRIQ"),
-            // Some secrets that the scanner should NOT suppress.
+        };
+
+        public static readonly SecretCases SecretsRequiringNewMasker_NewMasker =
+            new(_secretsRequiringNewMasker, useNewMaskerAndRegexes: true, requireNewMaskerAndRegexes: true);
+
+        public static readonly SecretCases SecretsRequiringNewMasker_LegacyMasker =
+            new(_secretsRequiringNewMasker, useNewMaskerAndRegexes: false, requireNewMaskerAndRegexes: true);
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(SecretsRequiringNewMasker_NewMasker))]
+        public void SecretsRequiringNewMasker_NewMasker_Masked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: true);
+        }
+
+        [Theory]
+        [Trait("Level", "L0")]
+        [Trait("Category", "Common")]
+        [MemberData(nameof(SecretsRequiringNewMasker_LegacyMasker))]
+        public void SecretsRequiringNewMasker_LegacyMasker_NotMasked(string input, string expected)
+        {
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: false);
+        }
+
+        private static readonly (string, string)[] _nonSecrets = new (string, string)[]
+        {
+            // Some non-secrets that the scanner should NOT suppress.
             ("SSdtIGEgY29tcGxldGVseSBpbm5vY3VvdXMgc3RyaW5nLg==", null),
             ("The password is knock knock knock", null),
         };
 
-        public static readonly SecretCases OtherSecrets_NewMasker_AdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: true, requireAdditionalMaskingRegexes: true);
-
-        public static readonly SecretCases OtherSecrets_NewMasker_NoAdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: true, useAdditionalMaskingRegexes: false, requireAdditionalMaskingRegexes: true);
-
-        public static readonly SecretCases OtherSecrets_LegacyMasker_AdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: true, requireAdditionalMaskingRegexes: true);
-
-        public static readonly SecretCases OtherSecrets_LegacyMasker_NoAdditionalRegexes =
-            new(_otherSecretCases, useNewSecretMasker: false, useAdditionalMaskingRegexes: false, requireAdditionalMaskingRegexes: true);
+        public static readonly SecretCases NonSecrets_NewMasker = new(_nonSecrets, useNewMaskerAndRegexes: true);
+        public static readonly SecretCases NonSecrets_LegacyMasker = new(_nonSecrets, useNewMaskerAndRegexes: false);
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(OtherSecrets_NewMasker_AdditionalRegexes))]
-        public void OtherSecrets_NewMasker_AdditionalRegexes_Masked(string input, string expected)
+        [MemberData(nameof(NonSecrets_NewMasker))]
+        public void NonSecrets_NewMasker_NotMasked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: true);
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: true);
         }
 
         [Theory]
         [Trait("Level", "L0")]
         [Trait("Category", "Common")]
-        [MemberData(nameof(OtherSecrets_NewMasker_NoAdditionalRegexes))]
-        public void OtherSecrets_NewMasker_NoAdditionalRegexes_NotMasked(string input, string expected)
+        [MemberData(nameof(NonSecrets_LegacyMasker))]
+        public void NonSecrets_LegacyMasker_NotMasked(string input, string expected)
         {
-            TestSecretMasking(input, expected, useNewSecretMasker: true, useAdditionalMaskingRegexes: false);
-        }
-
-        [Theory]
-        [Trait("Level", "L0")]
-        [Trait("Category", "Common")]
-        [MemberData(nameof(OtherSecrets_LegacyMasker_AdditionalRegexes))]
-        public void OtherSecrets_LegacyMasker_AdditionalRegexes_Masked(string input, string expected)
-        {
-            TestSecretMasking(input, expected, useNewSecretMasker: false, useAdditionalMaskingRegexes: true);
+            TestSecretMasking(input, expected, useNewMaskerAndRegexes: false);
         }
 
         public sealed class SecretCases : TheoryData<string, string>
         {
-            public SecretCases((string, string)[] cases, bool useNewSecretMasker, bool useAdditionalMaskingRegexes, bool requireAdditionalMaskingRegexes = false)
+            public SecretCases((string, string)[] cases, bool useNewMaskerAndRegexes, bool requireNewMaskerAndRegexes = false)
             {
                 foreach ((string secret, string redaction) in cases)
                 {
                     string expected;
-                    if (redaction == null || (requireAdditionalMaskingRegexes && !useAdditionalMaskingRegexes))
+                    if (redaction == null || (requireNewMaskerAndRegexes && !useNewMaskerAndRegexes))
                     {
                         expected = secret;
                     }
                     else
                     {
-                        expected = useNewSecretMasker || redaction.Contains("***") ? redaction : "***";
+                        expected = redaction;
                     }
                     Add(secret, expected);
                 }
             }
         }
 
-        private void TestSecretMasking(string input, string expected, bool useNewSecretMasker, bool useAdditionalMaskingRegexes, string[] values = null, [CallerMemberName] string testName = "")
+        private void TestSecretMasking(string input, string expected, bool useNewMaskerAndRegexes, string[] values = null, [CallerMemberName] string testName = "")
         {
             // Arrange.
             try
             {
-                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", useNewSecretMasker.ToString());
-                Environment.SetEnvironmentVariable("AZP_ENABLE_ADDITIONAL_MASKING_REGEXES", useAdditionalMaskingRegexes.ToString());
+                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_MASKER_AND_REGEXES", useNewMaskerAndRegexes.ToString());
 
                 using (var _hc = Setup(testName))
                 {
@@ -320,8 +275,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
             }
             finally
             {
-                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_SECRET_MASKER", null);
-                Environment.SetEnvironmentVariable("AZP_ENABLE_ADDITIONAL_MASKING_REGEXES", null);
+                Environment.SetEnvironmentVariable("AZP_ENABLE_NEW_MASKER_AND_REGEXES", null);
             }
         }
 

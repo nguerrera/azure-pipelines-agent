@@ -448,8 +448,6 @@ namespace Microsoft.VisualStudio.Services.Agent
                 // Keep alphabetical. If you add or remove a variable here, do the same in ReadOnlyVariables
                 //
                 public static readonly string BuildDirectoryClean = "agent.clean.buildDirectory";
-                public static readonly string EnableAdditionalMaskingRegexes = "agent.enableAdditionalMaskingRegexes";
-                public static readonly string EnableNewSecretMasker = "agent.enableNewSecretMasker";
                 public static readonly string GitLfsSupport = "agent.source.git.lfs";
                 public static readonly string GitShallowDepth = "agent.source.git.shallowFetchDepth";
                 public static readonly string SkipSyncSource = "agent.source.skip";
@@ -632,8 +630,6 @@ namespace Microsoft.VisualStudio.Services.Agent
                 Common.TestResultsDirectory,
                 // Feature variables
                 Features.BuildDirectoryClean,
-                Features.EnableAdditionalMaskingRegexes,
-                Features.EnableNewSecretMasker,
                 Features.GitLfsSupport,
                 Features.GitShallowDepth,
                 Features.SkipSyncSource,

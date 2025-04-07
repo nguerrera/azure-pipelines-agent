@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-
+using System.Text.RegularExpressions;
 using Microsoft.Security.Utilities;
 
 using ISecretMasker = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
@@ -43,7 +43,20 @@ public sealed class OssSecretMasker : ISecretMasker, IDisposable
     /// </summary>
     public void AddRegex(string pattern)
     {
-        _secretMasker.AddRegex(new RegexPattern(id: string.Empty, name: string.Empty, DetectionMetadata.None, pattern));
+        // NOTE: This code path is used for regexes sent to the agent via
+        // `AgentJobRequestMessage.MaskHints`. The regexes are effectively
+        // arbitrary from our perspective at this layer and therefore we cannot
+        // use regex options like 'NonBacktracking' that may not be compatible
+        // with them. 
+        var regexPattern = new RegexPattern(
+            id: string.Empty,
+            name: string.Empty,
+            label: string.Empty,
+            pattern: pattern,
+            patternMetadata: DetectionMetadata.None,
+            regexOptions: RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
+
+        _secretMasker.AddRegex(regexPattern);
     }
 
     /// <summary>

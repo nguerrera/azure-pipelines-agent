@@ -23,7 +23,7 @@ using Pipelines = Microsoft.TeamFoundation.DistributedTask.Pipelines;
 using Agent.Sdk.Util;
 using Microsoft.TeamFoundation.DistributedTask.Logging;
 using Microsoft.Security.Utilities;
-using SecretMasker = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
+using LegacySecretMasker = Microsoft.TeamFoundation.DistributedTask.Logging.SecretMasker;
 using ISecretMasker = Microsoft.TeamFoundation.DistributedTask.Logging.ISecretMasker;
 
 namespace Microsoft.VisualStudio.Services.Agent
@@ -137,6 +137,7 @@ namespace Microsoft.VisualStudio.Services.Agent
             _trace = GetTrace(nameof(HostContext));
             this.SecretMasker.SetTrace(_trace);
 
+
             _vssTrace = GetTrace(nameof(VisualStudio) + nameof(VisualStudio.Services));  // VisualStudioService
 
             // Enable Http trace
@@ -171,77 +172,39 @@ namespace Microsoft.VisualStudio.Services.Agent
 
         private ILoggedSecretMasker CreateSecretMasker()
         {
-            // When enabled, use the OSS package-provided secret masker from
+            // When enabled, use the new OSS package-provided secret masker from
             // Microsoft.Security.Utilities.Core. Otherwise, use the legacy
-            // secret masker from VSO.
-            bool useNewSecretMasker = AgentKnobs.EnableNewSecretMasker.GetValue(this).AsBoolean();
-
-            // When enabled, use add additional regex patterns to the secret
-            // masker. For the OSS package-provided secret masker, this will use
-            // its 'PreciselyClassifiedSecurityKeys'. This class of pattern
+            // secret masker from VSO. This will also add additional
+            // 'PreciselyClassifiedSecurityKeys' regexes. This class of pattern
             // effectively admits no false positives and is strongly oriented on
-            // detecting the latest Azure provider API key formats. For the
-            // legacy secret masker, this will use 'SecurityUtilitiesPatterns'
-            // implemented in this repository. Also, note that URL secret
-            // masking is performed via regex in all cases, irrespective of any
-            // feature flags.
-            bool useAdditionalMaskingRegexes = AgentKnobs.EnableAdditionalMaskingRegexes.GetValue(this).AsBoolean();
+            // detecting the latest Azure provider API key formats.
+            bool enableNewMaskerAndRegexes = AgentKnobs.EnableNewMaskerAndRegexes.GetValue(this).AsBoolean();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope. False positive: LoggedSecretMasker takes ownership.
             ISecretMasker rawSecretMasker;
-            if (useNewSecretMasker)
+            if (enableNewMaskerAndRegexes)
             {
-                var patterns = new List<RegexPattern>();
-
-                // https://github.com/microsoft/security-utilities/issues/175
-                //
-                // The new secret masker from Microsoft.Security.Utilities.Core
-                // provides a URL secret pattern, but has some differences in
-                // behavior. Until we reconcile these differences, we use the
-                // regex in this repo and a signature compatible with it along
-                // with the pattern metadata taken from the package.
-                RegexPattern urlCredentialsPattern = new UrlCredentials();
-                urlCredentialsPattern = new RegexPattern(
-                    id: urlCredentialsPattern.Id,
-                    name: urlCredentialsPattern.Name,
-                    patternMetadata: urlCredentialsPattern.DetectionMetadata,
-                    signatures: new HashSet<string>(new[] { "//" }),
-                    pattern: AdditionalMaskingRegexes.UrlSecretPatternNonBacktracking);
-
-                patterns.Add(urlCredentialsPattern);
-
-                if (useAdditionalMaskingRegexes)
-                {
-                    patterns.AddRange(WellKnownRegexPatterns.PreciselyClassifiedSecurityKeys);
-                }
-
-                rawSecretMasker = new OssSecretMasker(patterns);
+                rawSecretMasker = new OssSecretMasker(WellKnownRegexPatterns.PreciselyClassifiedSecurityKeys);
             }
             else
             {
-                rawSecretMasker = new SecretMasker();
+                rawSecretMasker = new LegacySecretMasker();
             }
-#pragma warning restore CA2000 // Dispose objects before losing scope
-
             ILoggedSecretMasker secretMasker = new LoggedSecretMasker(rawSecretMasker);
+#pragma warning restore CA2000 // Dispose objects before losing scope.
 
             secretMasker.AddValueEncoder(ValueEncoders.JsonStringEscape, $"HostContext_{WellKnownSecretAliases.JsonStringEscape}");
             secretMasker.AddValueEncoder(ValueEncoders.UriDataEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
             secretMasker.AddValueEncoder(ValueEncoders.BackslashEscape, $"HostContext_{WellKnownSecretAliases.UriDataEscape}");
 
-            if (!useNewSecretMasker)
-            {
-                secretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern, $"HostContext_{WellKnownSecretAliases.UrlSecretPattern}");
-
-                if (useAdditionalMaskingRegexes)
-                {
-                    foreach (var pattern in AdditionalMaskingRegexes.SecurityUtilitiesPatterns)
-                    {
-                        secretMasker.AddRegex(pattern, $"HostContext_{WellKnownSecretAliases.SecurityUtilitiesPatterns}");
-                    }
-                }
-            }
-
+            // NOTE: URL credentials are always masked by regex, by both the new
+            // OSS masker and the legacy masker.
+            //
+            // When using the new masker, we could use its `UrlCredentials`
+            // pattern instead of this built-in regex, but there are some
+            // differences in behavior that we need to reconcile first:
+            // https://github.com/microsoft/security-utilities/issues/175
+            secretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern, $"HostContext_{WellKnownSecretAliases.UrlSecretPattern}");
             return secretMasker;
         }
 

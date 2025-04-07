@@ -675,16 +675,10 @@ namespace Agent.Sdk.Knob
             new PipelineFeatureSource("UseNode20ToStartContainer"),
             new BuiltInDefaultKnobSource("false"));
 
-        public static readonly Knob EnableNewSecretMasker = new Knob(
-            nameof(EnableNewSecretMasker),
+        public static readonly Knob EnableNewMaskerAndRegexes = new Knob(
+            nameof(EnableNewMaskerAndRegexes),
             "If true, the agent will use new SecretMasker with additional filters & performance enhancements",
-            new EnvironmentKnobSource("AZP_ENABLE_NEW_SECRET_MASKER"),
-            new BuiltInDefaultKnobSource("false"));
-
-        public static readonly Knob EnableAdditionalMaskingRegexes = new Knob(
-            nameof(EnableAdditionalMaskingRegexes),
-            "If true, SecretMasker will use additional regexes to mask well-known secret patterns",
-            new EnvironmentKnobSource("AZP_ENABLE_ADDITIONAL_MASKING_REGEXES"),
+            new EnvironmentKnobSource("AZP_ENABLE_NEW_MASKER_AND_REGEXES"),
             new BuiltInDefaultKnobSource("false"));
 
         public static readonly Knob AddDockerInitOption = new Knob(

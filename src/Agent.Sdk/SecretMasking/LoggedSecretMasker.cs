@@ -48,6 +48,7 @@ namespace Agent.Sdk.SecretMasking
         /// <param name="origin">Origin of the secret</param>
         public void AddValue(string value, string origin)
         {
+            // WARNING: Do not log the value here, it is a secret!
             this.Trace($"Setting up value for origin: {origin}");
             if (value == null)
             {
@@ -69,8 +70,8 @@ namespace Agent.Sdk.SecretMasking
         /// <param name="origin"></param>
         public void AddRegex(string pattern, string origin)
         {
+            // WARNING: Do not log the pattern here, it could be very specifc and contain a secret!
             this.Trace($"Setting up regex for origin: {origin}.");
-            this.Trace($"Regex value: {pattern}.");
             if (pattern == null)
             {
                 this.Trace($"Pattern is empty.");

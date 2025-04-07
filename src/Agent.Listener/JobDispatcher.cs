@@ -397,18 +397,12 @@ namespace Microsoft.VisualStudio.Services.Agent.Listener
                 using (var processInvoker = HostContext.CreateService<IProcessInvoker>())
                 {
                     var featureFlagProvider = HostContext.GetService<IFeatureFlagProvider>();
-                    var newSecretMaskerFeatureFlagStatus = await featureFlagProvider.GetFeatureFlagAsync(HostContext, "DistributedTask.Agent.EnableNewSecretMasker", Trace);
-                    var additionalMaskingRegexesFlagStatus = await featureFlagProvider.GetFeatureFlagAsync(HostContext, "DistributedTask.Agent.EnableAdditionalMaskingRegexes", Trace);
+                    var newMaskerAndRegexesFeatureFlagStatus = await featureFlagProvider.GetFeatureFlagAsync(HostContext, "DistributedTask.Agent.EnableNewMaskerAndRegexes", Trace);
                     var environment = new Dictionary<string, string>();
 
-                    if (newSecretMaskerFeatureFlagStatus?.EffectiveState == "On")
+                    if (newMaskerAndRegexesFeatureFlagStatus?.EffectiveState == "On")
                     {
-                        environment.Add("AZP_ENABLE_NEW_SECRET_MASKER", "true");
-                    }
-
-                    if (additionalMaskingRegexesFlagStatus?.EffectiveState == "On")
-                    {
-                        environment.Add("AZP_ENABLE_ADDITIONAL_MASKING_REGEXES", "true");
+                        environment.Add("AZP_ENABLE_NEW_MASKER_AND_REGEXES", "true");
                     }
 
                     // Start the process channel.
