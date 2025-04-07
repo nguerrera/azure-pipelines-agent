@@ -23,7 +23,7 @@ namespace Microsoft.VisualStudio.Services.Agent.Tests
         protected override OssSecretMasker CreateSecretMasker()
         {
             var testSecretMasker = new OssSecretMasker();
-            testSecretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPatternNonBacktracking);
+            testSecretMasker.AddRegex(AdditionalMaskingRegexes.UrlSecretPattern);
             return testSecretMasker;
         }
     }

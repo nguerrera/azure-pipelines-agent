@@ -396,15 +396,14 @@ namespace Microsoft.VisualStudio.Services.Agent.Listener
                 using (var processChannel = HostContext.CreateService<IProcessChannel>())
                 using (var processInvoker = HostContext.CreateService<IProcessInvoker>())
                 {
+
                     var featureFlagProvider = HostContext.GetService<IFeatureFlagProvider>();
                     var newMaskerAndRegexesFeatureFlagStatus = await featureFlagProvider.GetFeatureFlagAsync(HostContext, "DistributedTask.Agent.EnableNewMaskerAndRegexes", Trace);
                     var environment = new Dictionary<string, string>();
-
                     if (newMaskerAndRegexesFeatureFlagStatus?.EffectiveState == "On")
                     {
                         environment.Add("AZP_ENABLE_NEW_MASKER_AND_REGEXES", "true");
                     }
-
                     // Start the process channel.
                     // It's OK if StartServer bubbles an execption after the worker process has already started.
                     // The worker will shutdown after 30 seconds if it hasn't received the job message.

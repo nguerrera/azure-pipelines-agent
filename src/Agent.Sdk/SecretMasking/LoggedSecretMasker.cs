@@ -21,6 +21,7 @@ namespace Agent.Sdk.SecretMasking
         private ISecretMasker _secretMasker;
         private ITraceWriter _trace;
 
+
         private void Trace(string msg)
         {
             this._trace?.Info(msg);
