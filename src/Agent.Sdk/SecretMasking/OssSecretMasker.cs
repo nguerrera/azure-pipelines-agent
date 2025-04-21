@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Security.Utilities;
@@ -13,6 +14,9 @@ namespace Agent.Sdk.SecretMasking;
 public sealed class OssSecretMasker : ISecretMasker, IDisposable
 {
     private SecretMasker _secretMasker;
+    private readonly ConcurrentDictionary<string, string> _detectionsForTelemetry;
+    private readonly Action<Detection> _detectionAction;
+    private const int _maxDetectionsForTelemetry = 5;
 
     public OssSecretMasker() : this(Array.Empty<RegexPattern>())
     {
@@ -22,11 +26,14 @@ public sealed class OssSecretMasker : ISecretMasker, IDisposable
     {
         _secretMasker = new SecretMasker(patterns, generateCorrelatingIds: true);
         _secretMasker.DefaultRegexRedactionToken = "***";
+        _detectionAction = this.ProcessDetection;
     }
 
     private OssSecretMasker(OssSecretMasker copy)
     {
         _secretMasker = copy._secretMasker.Clone();
+        _detectionAction = this.ProcessDetection;
+        _detectionsForTelemetry = new ConcurrentDictionary<string, string>(copy._detectionsForTelemetry);
     }
 
     /// <summary>
@@ -37,6 +44,8 @@ public sealed class OssSecretMasker : ISecretMasker, IDisposable
         get => _secretMasker.MinimumSecretLength;
         set => _secretMasker.MinimumSecretLength = value;
     }
+
+    public bool HasTelemetry => _detectionsForTelemetry.Count > 0;
 
     /// <summary>
     /// This implementation assumes no more than one thread is adding regexes, values, or encoders at any given time.
@@ -85,7 +94,33 @@ public sealed class OssSecretMasker : ISecretMasker, IDisposable
 
     public string MaskSecrets(string input)
     {
-        return _secretMasker.MaskSecrets(input);
+        return _secretMasker.MaskSecrets(input, _detectionAction);
+    }
+
+    private void ProcessDetection(Detection detection)
+    {
+        if (_detectionsForTelemetry.Count < _maxDetectionsForTelemetry &&
+            !string.IsNullOrEmpty(detection.CrossCompanyCorrelatingId) &&
+            !string.IsNullOrEmpty(detection.Moniker))
+        {
+            _detectionsForTelemetry.TryAdd(detection.Moniker, detection.CrossCompanyCorrelatingId);
+        }
+    }
+
+    public void AddTelemetryDataTo(Dictionary<string, string> telemetryData)
+    {
+        int count = 0;
+        foreach ((string key, string value) in _detectionsForTelemetry)
+        {
+            if (count >= _maxDetectionsForTelemetry)
+            {
+                // Corner case: dictionary can exceed this size if multiple
+                // threads added to it at the same time.
+                break;
+            }
+            telemetryData.Add(key, value);
+            count++;
+        }
     }
 
     /// <summary>

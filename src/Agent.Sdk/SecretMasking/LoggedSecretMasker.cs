@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-
+using System.Collections.Generic;
 using Microsoft.TeamFoundation.DistributedTask.Logging;
 
 namespace Agent.Sdk.SecretMasking
@@ -161,6 +161,16 @@ namespace Agent.Sdk.SecretMasking
                     disposable.Dispose();
                 }
                 _secretMasker = null;
+            }
+        }
+
+        public bool HasTelemetry => _secretMasker is OssSecretMasker ossMasker && ossMasker.HasTelemetry;
+
+        public void AddTelemetryDataTo(Dictionary<string, string> telemetryData)
+        {
+            if (_secretMasker is OssSecretMasker ossMasker)
+            {
+                ossMasker.AddTelemetryDataTo(telemetryData);
             }
         }
     }

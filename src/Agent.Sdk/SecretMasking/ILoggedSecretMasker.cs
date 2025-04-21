@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-
+using System.Collections.Generic;
 using Microsoft.TeamFoundation.DistributedTask.Logging;
 
 namespace Agent.Sdk.SecretMasking
@@ -19,5 +19,8 @@ namespace Agent.Sdk.SecretMasking
         void AddValue(String value, string origin);
         void AddValueEncoder(ValueEncoder encoder, string origin);
         void SetTrace(ITraceWriter trace);
+
+        bool HasTelemetry { get; }
+        void AddTelemetryDataTo(Dictionary<string, string> telemetryData);
     }
 }

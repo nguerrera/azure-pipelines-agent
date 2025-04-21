@@ -16,6 +16,7 @@ using Agent.Sdk;
 using Agent.Sdk.Knob;
 using Newtonsoft.Json;
 using Microsoft.VisualStudio.Services.Agent.Worker.Telemetry;
+using Agent.Sdk.SecretMasking;
 
 namespace Microsoft.VisualStudio.Services.Agent.Worker
 {
@@ -566,6 +567,8 @@ namespace Microsoft.VisualStudio.Services.Agent.Worker
                     context.Start();
                     context.Section(StringUtil.Loc("StepStarting", StringUtil.Loc("FinalizeJob")));
 
+                    PublishSecretMaskerTelemetryIfAvalableAndOptedIn(jobContext);
+
                     // Wait for agent log plugin process exits
                     var logPlugin = HostContext.GetService<IAgentLogPlugin>();
                     try
@@ -753,6 +756,20 @@ namespace Microsoft.VisualStudio.Services.Agent.Worker
             }
 
             PublishTelemetry(jobContext, telemetryData, "KnobsStatus");
+        }
+
+        private void PublishSecretMaskerTelemetryIfAvalableAndOptedIn(IExecutionContext jobContext)
+        {
+            if (AgentKnobs.SendSecretMaskerTelemetry.GetValue(jobContext).AsBoolean()
+                && jobContext.GetHostContext().SecretMasker.HasTelemetry)
+            {
+                var telemetryData = new Dictionary<string, string>()
+                {
+                    { "JobId", jobContext?.Variables?.System_JobId }
+                };
+                jobContext.GetHostContext().SecretMasker.AddTelemetryDataTo(telemetryData);
+                PublishTelemetry(jobContext, telemetryData, "SecretMasker");
+            }
         }
 
         private void PublishTelemetry(IExecutionContext context, Dictionary<string, string> telemetryData, string feature)
